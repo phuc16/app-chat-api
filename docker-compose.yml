@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  app-chat-db:
+    image: mysql:latest
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./volumes:/var/lib/mysql
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+      ]
+    environment:
+      MYSQL_ROOT_PASSWORD: "Hcmut@123456"
+      MYSQL_DATABASE: "chat"
+      MYSQL_USER: "hcmut"
+      MYSQL_PASSWORD: "Hcmut@123456"
+
+  app-chat-api:
+    image: app-chat-api
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - WAIT_HOSTS=app-chat-db:3306
+      - DB_USER=hcmut
+      - DB_PASSWORD=Hcmut@123456
+      - DB_HOST=app-chat-db
+      - DB_PORT=3306
+      - DB_NAME=chat

@@ -1,20 +1,16 @@
 FROM golang:latest
 
-
 WORKDIR /app
-
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-
 COPY *.go ./
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app-chat-api
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
-
-
+COPY ./wait /wait
 
 EXPOSE 8080
 
 # Run
-CMD [ "/docker-gs-ping" ]
+CMD chmod +x /wait && /wait && /app-chat-api
