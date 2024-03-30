@@ -1,34 +1,55 @@
 version: "3.8"
 
-services:
-  app-chat-db:
-    image: mysql:latest
-    ports:
-      - "3308:3306"
-    volumes:
-      - ./volumes:/var/lib/mysql
-    command:
-      [
-        "mysqld",
-        "--character-set-server=utf8mb4",
-        "--collation-server=utf8mb4_unicode_ci",
-      ]
-    environment:
-      MYSQL_ROOT_PASSWORD: "Hcmut@123456"
-      MYSQL_DATABASE: "chat"
-      MYSQL_USER: "hcmut"
-      MYSQL_PASSWORD: "Hcmut@123456"
+x-attributes: &default-attributes
+  stdin_open: true
+  tty: true
 
+services:
   app-chat-api:
     image: app-chat-api
     build: .
     restart: always
+    <<: *default-attributes
     ports:
       - "8080:8080"
     environment:
-      - WAIT_HOSTS=app-chat-db:3306
-      - DB_USER=hcmut
-      - DB_PASSWORD=Hcmut@123456
-      - DB_HOST=app-chat-db
-      - DB_PORT=3306
-      - DB_NAME=chat
+      - LOG_ENCODING=console
+      - TRACE_PROVIDER_ENABLE=true
+      - TRACE_PROVIDER_OTLP_HTTP_ENDPOINT=app-chat-jaeger:4318
+      - WAIT_HOSTS=app-chat-db:27017
+
+  app-chat-db:
+    container_name: app-chat-db
+    image: bitnami/mongodb:4.4.6-debian-10-r28
+    ports:
+      - "27017:27017"
+    <<: *default-attributes
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=app-chat-db
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=hcmut123456
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_USERNAME=hcmut
+      - MONGODB_PASSWORD=hcmut123456
+      - MONGODB_DATABASE=app-chat-db
+    volumes:
+      - ./volumes/app-chat-db:/bitnami/mongodb
+
+  app-chat-db-secondary:
+    container_name: app-chat-db-secondary
+    image: bitnami/mongodb:4.4.6-debian-10-r28
+    <<: *default-attributes
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=app-chat-db-secondary
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_INITIAL_PRIMARY_HOST=app-chat-db
+      - MONGODB_INITIAL_PRIMARY_ROOT_PASSWORD=hcmut123456
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    volumes:
+      - ./volumes/app-chat-db-secondary:/bitnami/mongodb
+
+  app-chat-jaeger:
+    container_name: app-chat-jaeger
+    image: jaegertracing/all-in-one:1.50
+    ports:
+      - "16686:16686"
