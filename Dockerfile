@@ -1,16 +1,18 @@
-FROM golang:latest
+FROM golang:1.21-alpine AS builder
+
+RUN apk update && apk add git
 
 WORKDIR /app
-
-COPY go.mod go.sum ./
+COPY . .
 RUN go mod download
+RUN CGO_ENABLED=0 go build -v --trimpath -o app -ldflags="-X 'main.buildVersion=$(git rev-parse HEAD)' -X 'main.buildDate=$(date)'" main.go
 
-COPY *.go ./
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app-chat-api
+FROM ubuntu:20.04
 
-COPY ./wait /wait
-
-EXPOSE 8080
-
-# Run
-CMD chmod +x /wait && /wait && /app-chat-api
+WORKDIR /app
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait ./wait
+COPY ./config.yaml ./config.yaml
+COPY --from=builder /app/app ./app
+RUN chmod +x ./wait
+RUN chmod +x ./app
+CMD ./wait && ./app
