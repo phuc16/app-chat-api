@@ -8,6 +8,8 @@ const (
 	CodeUserExists
 	CodeUserNameExists
 	CodeUserEmailExists
+	CodePasswordIncorrect
+	CodeUserNotRegister
 )
 
 func UserNotFound() *apperror.Error {
@@ -24,4 +26,12 @@ func UserNameExists() *apperror.Error {
 
 func UserEmailExists() *apperror.Error {
 	return apperror.NewError(CodeUserEmailExists, "email exists")
+}
+
+func PasswordIncorrect() *apperror.Error {
+	return apperror.NewError(CodePasswordIncorrect, "password is incorrect")
+}
+
+func UserNotRegister() *apperror.Error {
+	return apperror.NewError(CodeUserNotRegister, "You do not have an account, please register first")
 }

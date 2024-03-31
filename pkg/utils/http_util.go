@@ -59,8 +59,8 @@ func HTTPLogger(c *gin.Context) {
 	fields = append(fields, zap.String("PATH", path))
 	fields = append(fields, zap.Int64("DUR", time.Now().Sub(start).Milliseconds()))
 	fields = append(fields, zap.String("IP", c.ClientIP()))
-	if value := c.Value("user_name"); value != nil {
-		fields = append(fields, zap.String("user_name", value.(string)))
+	if value := c.Value("username"); value != nil {
+		fields = append(fields, zap.String("username", value.(string)))
 	}
 	logger.For(c.Request.Context()).Append(fields...).Info("HTTP Request")
 }

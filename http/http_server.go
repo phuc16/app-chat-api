@@ -40,6 +40,16 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 		router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
+	router.POST("/auth/login", s.Login)
+	router.GET("/auth/logout", s.Logout)
+
+	router.GET("/user/profile", s.Authenticate, s.GetProfile)
+	router.GET("/users", s.Authenticate, s.GetUserList)
+	router.GET("/users/:id", s.Authenticate, s.GetUser)
+	router.POST("/users", s.CreateUser)
+	router.PUT("/users", s.Authenticate, s.UpdateUser)
+	router.DELETE("/users", s.Authenticate, s.DeleteUser)
+
 }
 
 func (s *Server) Start() (err error) {

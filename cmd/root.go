@@ -55,7 +55,7 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		userSvc := service.NewUserService(repo)
+		userSvc := service.NewUserService(repo, repo)
 
 		httpSrv := http.NewServer(userSvc)
 
