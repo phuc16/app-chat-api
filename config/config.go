@@ -89,11 +89,19 @@ type dbConfig struct {
 	DBName string `yaml:"db_name" env:"DB_NAME"`
 }
 
+type mailConfig struct {
+	Host     string `yaml:"host" env:"MAIL_HOST"`
+	Port     int    `yaml:"port" env:"MAIL_PORT"`
+	User     string `yaml:"user" env:"MAIL_USER"`
+	Password string `yaml:"password" env:"MAIL_PASSWORD"`
+}
+
 type allConfig struct {
 	Logger loggerConfig `yaml:"logger"`
 	OTel   otelConfig   `yaml:"otel"`
 	HTTP   hTTPConfig   `yaml:"http"`
 	DB     dbConfig     `yaml:"db"`
+	Mail   mailConfig   `yaml:"mail"`
 }
 
 var Cfg allConfig

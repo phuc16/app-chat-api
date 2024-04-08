@@ -55,9 +55,10 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		userSvc := service.NewUserService(repo, repo)
+		otpSvc := service.NewOtpService(repo, repo)
+		userSvc := service.NewUserService(otpSvc, repo, repo)
 
-		httpSrv := http.NewServer(userSvc)
+		httpSrv := http.NewServer(userSvc, otpSvc)
 
 		quit := make(chan error)
 		go func() {

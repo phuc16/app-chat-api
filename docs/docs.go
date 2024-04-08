@@ -97,6 +97,90 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/otps/request": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "otps"
+                ],
+                "summary": "RequestOtp",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.OtpReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/otps/verify": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "otps"
+                ],
+                "summary": "VerifyOtp",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.OtpVerifyReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/user/profile": {
             "get": {
                 "produces": [
@@ -398,6 +482,32 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.OtpReq": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.OtpVerifyReq": {
+            "type": "object",
+            "required": [
+                "code",
+                "email"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "email": {
                     "type": "string"
                 }
             }

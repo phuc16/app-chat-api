@@ -3,6 +3,7 @@ module app
 go 1.21.5
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.7.1
 	github.com/gin-contrib/sessions v1.0.0

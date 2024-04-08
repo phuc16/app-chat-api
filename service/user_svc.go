@@ -15,12 +15,13 @@ import (
 )
 
 type UserService struct {
+	OtpSvc    IOtpSvc
 	UserRepo  IUserRepo
 	TokenRepo ITokenRepo
 }
 
-func NewUserService(userRepo IUserRepo, tokenRepo ITokenRepo) *UserService {
-	return &UserService{UserRepo: userRepo, TokenRepo: tokenRepo}
+func NewUserService(otpSvc IOtpSvc, userRepo IUserRepo, tokenRepo ITokenRepo) *UserService {
+	return &UserService{OtpSvc: otpSvc, UserRepo: userRepo, TokenRepo: tokenRepo}
 }
 
 func (s *UserService) Login(ctx context.Context, user *entity.User) (accessToken string, err error) {
@@ -30,6 +31,9 @@ func (s *UserService) Login(ctx context.Context, user *entity.User) (accessToken
 	dbUser, err := s.UserRepo.GetUserByUserNameOrEmail(ctx, user.Username, user.Email)
 	if err != nil {
 		return
+	}
+	if !dbUser.IsActive {
+		return "", errors.UserInactive()
 	}
 	if !utils.VerifyPassword(user.Password, dbUser.Password) {
 		err = errors.PasswordIncorrect()
@@ -137,6 +141,10 @@ func (s *UserService) CreateUser(ctx context.Context, e *entity.User) (res any, 
 		return
 	}
 	err = s.UserRepo.SaveUser(ctx, user)
+	if err != nil {
+		return
+	}
+	_, err = s.OtpSvc.GenerateOtp(ctx, user.Email)
 	return
 }
 

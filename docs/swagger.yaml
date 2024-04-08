@@ -11,6 +11,23 @@ definitions:
       msg:
         type: string
     type: object
+  dto.OtpReq:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  dto.OtpVerifyReq:
+    properties:
+      code:
+        type: string
+      email:
+        type: string
+    required:
+    - code
+    - email
+    type: object
   dto.UserCreateReq:
     properties:
       avatar_url:
@@ -170,6 +187,60 @@ paths:
       summary: Logout
       tags:
       - authentications
+  /api/otps/request:
+    post:
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OtpReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+      summary: RequestOtp
+      tags:
+      - otps
+  /api/otps/verify:
+    post:
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OtpVerifyReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+      summary: VerifyOtp
+      tags:
+      - otps
   /api/user/profile:
     get:
       parameters:

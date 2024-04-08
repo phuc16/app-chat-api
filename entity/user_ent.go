@@ -27,8 +27,9 @@ type User struct {
 	AvatarUrl       string     `bson:"avatar_url"`
 	Status          string     `bson:"status"`
 	FriendIds       []string   `bson:"friend_ids"`
-	Friends         []*User     `bson:"friends,omitempty"`
+	Friends         []*User    `bson:"friends,omitempty"`
 	ConversationIds []string   `bson:"conversation_ids"`
+	IsActive        bool       `bson:"is_active"`
 	LastLoggedIn    time.Time  `bson:"last_logged_in"`
 	CreatedAt       time.Time  `bson:"created_at"`
 	UpdatedAt       time.Time  `bson:"updated_at"`
@@ -92,6 +93,11 @@ func (e *User) OnUserUpdated(ctx context.Context, user *User, eventTime time.Tim
 
 func (e *User) OnUserDeleted(ctx context.Context, user *User, eventTime time.Time) error {
 	e.DeletedAt = &eventTime
+	return nil
+}
+
+func (e *User) OnUserActive(ctx context.Context) error {
+	e.IsActive = true
 	return nil
 }
 
