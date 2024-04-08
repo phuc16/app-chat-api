@@ -10,6 +10,7 @@ const (
 	CodeUserEmailExists
 	CodePasswordIncorrect
 	CodeUserNotRegister
+	CodeUserInactive
 )
 
 func UserNotFound() *apperror.Error {
@@ -34,4 +35,8 @@ func PasswordIncorrect() *apperror.Error {
 
 func UserNotRegister() *apperror.Error {
 	return apperror.NewError(CodeUserNotRegister, "You do not have an account, please register first")
+}
+
+func UserInactive() *apperror.Error {
+	return apperror.NewError(CodeUserInactive, "account has not been active, please verify your email first")
 }

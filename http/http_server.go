@@ -26,10 +26,11 @@ import (
 
 type Server struct {
 	UserSvc *service.UserService
+	OtpSvc  *service.OtpService
 }
 
-func NewServer(userSvc *service.UserService) *Server {
-	return &Server{UserSvc: userSvc}
+func NewServer(userSvc *service.UserService, otpSvc *service.OtpService) *Server {
+	return &Server{UserSvc: userSvc, OtpSvc: otpSvc}
 }
 
 func (s *Server) Routes(router *gin.RouterGroup) {
@@ -50,6 +51,8 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 	router.PUT("/users", s.Authenticate, s.UpdateUser)
 	router.DELETE("/users", s.Authenticate, s.DeleteUser)
 
+	router.POST("/otps/request", s.RequestOtp)
+	router.POST("/otps/verify", s.VerifyOtp)
 }
 
 func (s *Server) Start() (err error) {

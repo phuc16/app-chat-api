@@ -87,6 +87,9 @@ func (r *Repo) GetUserById(ctx context.Context, id string) (res *entity.User, er
 	if len(d) <= 0 {
 		return nil, errors.UserNotFound()
 	}
+	if !d[0].IsActive {
+		return nil, errors.UserInactive()
+	}
 	return d[0], nil
 }
 func (r *Repo) GetUserByEmail(ctx context.Context, email string) (res *entity.User, err error) {
@@ -112,6 +115,9 @@ func (r *Repo) GetUserByEmail(ctx context.Context, email string) (res *entity.Us
 	}
 	if len(d) <= 0 {
 		return nil, errors.UserNotFound()
+	}
+	if !d[0].IsActive {
+		return nil, errors.UserInactive()
 	}
 	return d[0], nil
 }
@@ -140,6 +146,9 @@ func (r *Repo) GetUserByUserName(ctx context.Context, username string) (res *ent
 	if len(d) <= 0 {
 		return nil, errors.UserNotFound()
 	}
+	if !d[0].IsActive {
+		return nil, errors.UserInactive()
+	}
 	return d[0], nil
 }
 
@@ -152,6 +161,29 @@ func (r *Repo) GetUserByUserNameOrEmail(ctx context.Context, username string, em
 	filter := bson.D{{"$or", []interface{}{
 		bson.D{{"username", username}, {"deleted_at", nil}},
 		bson.D{{"email", email}, {"deleted_at", nil}},
+	}}}
+	if err := r.userColl().FindOne(ctx, filter).Decode(&d); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.UserNotFound()
+		}
+		return nil, err
+	}
+	if !d.IsActive {
+		return nil, errors.UserInactive()
+	}
+	return &d, nil
+}
+
+func (r *Repo) GetInactiveUser(ctx context.Context, email string) (res *entity.User, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+	defer errors.WrapDatabaseError(&err)
+
+	var d entity.User
+	filter := bson.D{{"$and", []interface{}{
+		bson.D{{"email", email}},
+		bson.D{{"is_active", false}},
+		bson.D{{"deleted_at", nil}},
 	}}}
 	if err := r.userColl().FindOne(ctx, filter).Decode(&d); err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -245,6 +277,7 @@ func (r *Repo) GetUserList(ctx context.Context, params *QueryParams) (res []*ent
 		pipeLine = append(pipeLine, matchFieldPipeline(k, v))
 	}
 	pipeLine = append(pipeLine, matchFieldPipeline("deleted_at", nil))
+	pipeLine = append(pipeLine, matchFieldPipeline("is_active", true))
 
 	cursor, err := coll.Aggregate(ctx, append(pipeLine, bson.D{{"$count", "total_count"}}))
 	if err != nil {

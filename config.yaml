@@ -30,3 +30,9 @@ otel:
     insecure: true
   metric:
     enable: false
+
+mail:
+  host: smtp.gmail.com
+  port: 587
+  user: remsokawaii1@gmail.com
+  password: prgc fsdl wgdc tttb
