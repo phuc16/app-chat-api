@@ -22,7 +22,9 @@ func (r *Repo) CreateOtpIndexes(ctx context.Context) ([]string, error) {
 	indexes, err := r.otpColl().Indexes().CreateMany(ctx, []mongo.IndexModel{
 		{Keys: bson.D{
 			{"email", 1},
-			{"deleted_at", 1},
+		}, Options: options.Index().SetUnique(true)},
+		{Keys: bson.D{
+			{"code", 1},
 		}, Options: options.Index().SetUnique(true)},
 	})
 	if err != nil {
