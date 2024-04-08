@@ -30,6 +30,17 @@ func (r *Repo) ExecTransaction(ctx context.Context, fn func(ctx context.Context)
 }
 
 func (r *Repo) InitIndex(ctx context.Context) (err error) {
-
+	_, err = r.CreateUserIndexes(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = r.CreateTokenIndexes(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = r.CreateOtpIndexes(ctx)
+	if err != nil {
+		return err
+	}
 	return
 }
