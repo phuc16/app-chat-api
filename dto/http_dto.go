@@ -57,9 +57,6 @@ func (p *QueryParams) Validate(dto interface{}) error {
 	if p.Sort != "" && !utils.IsExist(tags, p.Sort) {
 		return apperror.NewError(errors.CodeUnknownError, fmt.Sprintf("invalid sort field %s", p.Sort))
 	}
-	if p.Sort == "creator" || p.Sort == "updater" || p.Sort == "approver" || p.Sort == "reviewer" {
-		p.Sort = p.Sort + ".username"
-	}
 	if p.SortType != "" && p.SortType != "asc" && p.SortType != "desc" {
 		return apperror.NewError(errors.CodeUnknownError, "sort type must be either asc or desc")
 	}
