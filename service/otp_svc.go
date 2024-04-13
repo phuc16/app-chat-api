@@ -27,11 +27,6 @@ func (s *OtpService) GenerateOtp(ctx context.Context, email string) (res entity.
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 
-	_, err = s.UserRepo.GetInactiveUser(ctx, email)
-	if err != nil {
-		return
-	}
-
 	otp := &entity.Otp{
 		ID:        utils.NewID(),
 		Email:     email,
@@ -63,32 +58,27 @@ func (s *OtpService) SendOtp(ctx context.Context, email, code string) (err error
 	return
 }
 
-func (s *OtpService) VerifyOtp(ctx context.Context, e *entity.Otp) (res any, err error) {
+func (s *OtpService) VerifyOtp(ctx context.Context, e *entity.Otp) (res *entity.Otp, err error) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 
-	otp, err := s.OtpRepo.GetOtp(ctx, e)
+	res, err = s.OtpRepo.GetOtp(ctx, e)
 	if err != nil {
 		return
 	}
-	if time.Now().After(otp.CreatedAt) {
-		err2 := s.OtpRepo.DeleteOtp(ctx, otp)
+	if time.Now().After(res.CreatedAt) {
+		err2 := s.OtpRepo.DeleteOtp(ctx, res)
 		if err != nil {
 			return res, err2
 		}
 		return res, errors.OtpExpired()
 	}
-
-	dbUser, err := s.UserRepo.GetInactiveUser(ctx, e.Email)
-	if err != nil {
-		return
-	}
-	dbUser.OnUserActive(ctx)
-	err = s.UserRepo.UpdateUser(ctx, dbUser)
-	if err != nil {
-		return
-	}
-
-	err = s.OtpRepo.DeleteOtp(ctx, otp)
 	return
+}
+
+func (s *OtpService) DeleteOtp(ctx context.Context, e *entity.Otp) (err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	return s.OtpRepo.DeleteOtp(ctx, e)
 }

@@ -178,6 +178,54 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 	}
 }
 
+// ActiveUser godoc
+//
+//	@Summary	ActiveUser
+//	@Description
+//	@Tags		users
+//	@Produce	json
+//	@Param		request	body		dto.UserActiveReq	true	"request"
+//	@Success	200		{object}	dto.HTTPResp
+//	@Failure	400		{object}	dto.HTTPResp
+//	@Failure	500		{object}	dto.HTTPResp
+//	@Router		/api/users/active [put]
+func (s *Server) ActiveUser(ctx *gin.Context) {
+	req, err := dto.UserActiveReq{}.Bind(ctx)
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+	_, err = s.UserSvc.ActiveUser(ctxFromGin(ctx), req.ToUser(ctxFromGin(ctx)))
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+}
+
+// ResetPassword godoc
+//
+//	@Summary	ResetPassword
+//	@Description
+//	@Tags		users
+//	@Produce	json
+//	@Param		request	body		dto.UserResetPasswordReq	true	"request"
+//	@Success	200		{object}	dto.HTTPResp
+//	@Failure	400		{object}	dto.HTTPResp
+//	@Failure	500		{object}	dto.HTTPResp
+//	@Router		/api/users/reset-password [put]
+func (s *Server) ResetPassword(ctx *gin.Context) {
+	req, err := dto.UserResetPasswordReq{}.Bind(ctx)
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+	_, err = s.UserSvc.ResetPassword(ctxFromGin(ctx), req.ToUser(ctxFromGin(ctx)))
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+}
+
 // UpdateUser godoc
 //
 //	@Summary	UpdateUser

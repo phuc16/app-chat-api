@@ -18,15 +18,15 @@ definitions:
     required:
     - email
     type: object
-  dto.OtpVerifyReq:
+  dto.UserActiveReq:
     properties:
-      code:
-        type: string
       email:
         type: string
+      otp:
+        type: string
     required:
-    - code
     - email
+    - otp
     type: object
   dto.UserCreateReq:
     properties:
@@ -85,6 +85,19 @@ definitions:
     - password
     - username_or_email
     type: object
+  dto.UserResetPasswordReq:
+    properties:
+      email:
+        type: string
+      new_password:
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - new_password
+    - otp
+    type: object
   dto.UserResp:
     properties:
       avatar_url:
@@ -120,15 +133,9 @@ definitions:
     properties:
       avatar_url:
         type: string
-      email:
-        type: string
       name:
         type: string
-      password:
-        type: string
       phone:
-        type: string
-      username:
         type: string
     type: object
 info:
@@ -212,33 +219,6 @@ paths:
           schema:
             $ref: '#/definitions/dto.HTTPResp'
       summary: RequestOtp
-      tags:
-      - otps
-  /api/otps/verify:
-    post:
-      parameters:
-      - description: request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.OtpVerifyReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.HTTPResp'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.HTTPResp'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.HTTPResp'
-      summary: VerifyOtp
       tags:
       - otps
   /api/user/profile:
@@ -425,6 +405,60 @@ paths:
           schema:
             $ref: '#/definitions/dto.HTTPResp'
       summary: GetUser
+      tags:
+      - users
+  /api/users/active:
+    put:
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserActiveReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+      summary: ActiveUser
+      tags:
+      - users
+  /api/users/reset-password:
+    put:
+      parameters:
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+      summary: ResetPassword
       tags:
       - users
 swagger: "2.0"

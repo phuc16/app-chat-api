@@ -67,10 +67,57 @@ func (r UserCreateReq) ToUser(ctx context.Context) (res *entity.User) {
 	return res
 }
 
+type UserActiveReq struct {
+	Email string `json:"email" binding:"required"`
+	Otp   string `json:"otp" binding:"required"`
+}
+
+func (r UserActiveReq) Bind(ctx *gin.Context) (res *UserActiveReq, err error) {
+	err = ctx.ShouldBindJSON(&r)
+	if err != nil {
+		return nil, apperror.NewError(errors.CodeUnknownError, validationErrorToText(err))
+	}
+	return &r, nil
+}
+func (r UserActiveReq) Validate() (err error) {
+	return
+}
+
+func (r UserActiveReq) ToUser(ctx context.Context) (res *entity.User) {
+	res = &entity.User{
+		Email: r.Email,
+		Otp:   r.Otp,
+	}
+	return res
+}
+
+type UserResetPasswordReq struct {
+	Email       string `json:"email" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+	Otp         string `json:"otp" binding:"required"`
+}
+
+func (r UserResetPasswordReq) Bind(ctx *gin.Context) (res *UserResetPasswordReq, err error) {
+	err = ctx.ShouldBindJSON(&r)
+	if err != nil {
+		return nil, apperror.NewError(errors.CodeUnknownError, validationErrorToText(err))
+	}
+	return &r, nil
+}
+func (r UserResetPasswordReq) Validate() (err error) {
+	return
+}
+
+func (r UserResetPasswordReq) ToUser(ctx context.Context) (res *entity.User) {
+	res = &entity.User{
+		Email:    r.Email,
+		Password: r.NewPassword,
+		Otp:      r.Otp,
+	}
+	return res
+}
+
 type UserUpdateReq struct {
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
 	Name      string `json:"name"`
 	Phone     string `json:"phone"`
 	AvatarUrl string `json:"avatar_url"`
@@ -91,9 +138,6 @@ func (r UserUpdateReq) Validate() (err error) {
 func (r UserUpdateReq) ToUser(ctx context.Context) (res *entity.User) {
 	res = &entity.User{
 		ID:        entity.GetUserFromContext(ctx).ID,
-		Username:  r.Username,
-		Email:     r.Email,
-		Password:  r.Password,
 		Name:      r.Name,
 		Phone:     r.Phone,
 		AvatarUrl: r.AvatarUrl,

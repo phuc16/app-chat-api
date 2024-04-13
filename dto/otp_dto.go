@@ -9,31 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type OtpVerifyReq struct {
-	Email string `json:"email" binding:"required"`
-	Code  string `json:"code" binding:"required"`
-}
-
-func (r OtpVerifyReq) Bind(ctx *gin.Context) (res *OtpVerifyReq, err error) {
-	err = ctx.ShouldBindJSON(&r)
-	if err != nil {
-		return nil, apperror.NewError(errors.CodeUnknownError, validationErrorToText(err))
-	}
-	return &r, nil
-}
-func (r OtpVerifyReq) Validate() (err error) {
-	return
-}
-
-func (r OtpVerifyReq) ToOtp(ctx context.Context) (res *entity.Otp) {
-	res = &entity.Otp{
-		Email: r.Email,
-		Code:  r.Code,
-	}
-	return res
-}
-
-
 type OtpReq struct {
 	Email string `json:"email" binding:"required"`
 }

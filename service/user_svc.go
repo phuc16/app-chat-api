@@ -148,6 +148,56 @@ func (s *UserService) CreateUser(ctx context.Context, e *entity.User) (res any, 
 	return
 }
 
+func (s *UserService) ActiveUser(ctx context.Context, e *entity.User) (res any, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	otp, err := s.OtpSvc.VerifyOtp(ctx, &entity.Otp{
+		Email: e.Email,
+		Code:  e.Otp,
+	})
+	if err != nil {
+		return
+	}
+	dbUser, err := s.UserRepo.GetInactiveUser(ctx, e.Email)
+	if err != nil {
+		return
+	}
+	dbUser.OnUserActive(ctx)
+	err = s.UserRepo.UpdateUser(ctx, dbUser)
+	if err != nil {
+		return
+	}
+
+	err = s.OtpSvc.DeleteOtp(ctx, otp)
+	return
+}
+
+func (s *UserService) ResetPassword(ctx context.Context, e *entity.User) (res any, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	otp, err := s.OtpSvc.VerifyOtp(ctx, &entity.Otp{
+		Email: e.Email,
+		Code:  e.Otp,
+	})
+	if err != nil {
+		return
+	}
+	dbUser, err := s.UserRepo.GetUserByEmail(ctx, e.Email)
+	if err != nil {
+		return
+	}
+	dbUser.OnUserUpdated(ctx, e, time.Now())
+	err = s.UserRepo.UpdateUser(ctx, dbUser)
+	if err != nil {
+		return
+	}
+
+	err = s.OtpSvc.DeleteOtp(ctx, otp)
+	return
+}
+
 func (s *UserService) UpdateUser(ctx context.Context, e *entity.User) (res any, err error) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
