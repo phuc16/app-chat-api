@@ -139,48 +139,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/otps/verify": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "otps"
-                ],
-                "summary": "VerifyOtp",
-                "parameters": [
-                    {
-                        "description": "request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.OtpVerifyReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.HTTPResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.HTTPResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.HTTPResp"
-                        }
-                    }
-                }
-            }
-        },
         "/api/user/profile": {
             "get": {
                 "produces": [
@@ -425,6 +383,90 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/active": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "ActiveUser",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserActiveReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/reset-password": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "ResetPassword",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserResetPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HTTPResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/{id}": {
             "get": {
                 "produces": [
@@ -497,17 +539,17 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.OtpVerifyReq": {
+        "dto.UserActiveReq": {
             "type": "object",
             "required": [
-                "code",
-                "email"
+                "email",
+                "otp"
             ],
             "properties": {
-                "code": {
+                "email": {
                     "type": "string"
                 },
-                "email": {
+                "otp": {
                     "type": "string"
                 }
             }
@@ -597,6 +639,25 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UserResetPasswordReq": {
+            "type": "object",
+            "required": [
+                "email",
+                "new_password",
+                "otp"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
+                },
+                "otp": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.UserResp": {
             "type": "object",
             "properties": {
@@ -650,19 +711,10 @@ const docTemplate = `{
                 "avatar_url": {
                     "type": "string"
                 },
-                "email": {
-                    "type": "string"
-                },
                 "name": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
-                },
                 "phone": {
-                    "type": "string"
-                },
-                "username": {
                     "type": "string"
                 }
             }

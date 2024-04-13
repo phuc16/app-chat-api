@@ -31,6 +31,7 @@ type User struct {
 	ConversationIds []string   `bson:"conversation_ids"`
 	IsActive        bool       `bson:"is_active"`
 	LastLoggedIn    time.Time  `bson:"last_logged_in"`
+	Otp             string     `bson:"-"`
 	CreatedAt       time.Time  `bson:"created_at"`
 	UpdatedAt       time.Time  `bson:"updated_at"`
 	DeletedAt       *time.Time `bson:"deleted_at,omitempty"`

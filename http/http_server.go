@@ -48,11 +48,12 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 	router.GET("/users", s.Authenticate, s.GetUserList)
 	router.GET("/users/:id", s.Authenticate, s.GetUser)
 	router.POST("/users", s.CreateUser)
+	router.PUT("/users/active", s.ActiveUser)
+	router.PUT("/users/reset-password", s.ResetPassword)
 	router.PUT("/users", s.Authenticate, s.UpdateUser)
 	router.DELETE("/users", s.Authenticate, s.DeleteUser)
 
 	router.POST("/otps/request", s.RequestOtp)
-	router.POST("/otps/verify", s.VerifyOtp)
 }
 
 func (s *Server) Start() (err error) {

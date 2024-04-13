@@ -41,4 +41,6 @@ type IOtpRepo interface {
 
 type IOtpSvc interface {
 	GenerateOtp(ctx context.Context, email string) (res entity.Otp, err error)
+	VerifyOtp(ctx context.Context, e *entity.Otp) (res *entity.Otp, err error)
+	DeleteOtp(ctx context.Context, e *entity.Otp) (err error)
 }
