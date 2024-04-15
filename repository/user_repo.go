@@ -307,6 +307,28 @@ func (r *Repo) GetUserList(ctx context.Context, params *QueryParams) (res []*ent
 	return res, total, nil
 }
 
+func (r *Repo) GetAllUsers(ctx context.Context) (res []*entity.User, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+	defer errors.WrapDatabaseError(&err)
+
+	coll := r.userColl()
+
+	pipeLine := mongo.Pipeline{}
+	pipeLine = append(pipeLine, matchFieldPipeline("deleted_at", nil))
+	pipeLine = append(pipeLine, matchFieldPipeline("is_active", true))
+	pipeLine = append(pipeLine, friendsLookupPipeline)
+
+	cursor, err := coll.Aggregate(ctx, pipeLine, collationAggregateOption)
+	if err != nil {
+		return res, err
+	}
+	if err = cursor.All(ctx, &res); err != nil {
+		return res, err
+	}
+	return res, nil
+}
+
 func (r *Repo) UpdateUser(ctx context.Context, user *entity.User) (err error) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
