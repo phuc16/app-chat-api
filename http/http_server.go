@@ -52,6 +52,10 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 	router.PUT("/users/reset-password", s.ResetPassword)
 	router.PUT("/users", s.Authenticate, s.UpdateUser)
 	router.DELETE("/users", s.Authenticate, s.DeleteUser)
+	router.POST("/users/:id/friends/request", s.Authenticate, s.SendFriendRequest)
+	router.DELETE("/users/:id/friends/reject", s.Authenticate, s.RejectFriendRequest)
+	router.POST("/users/:id/friends/accept", s.Authenticate, s.AcceptFriendRequest)
+	router.DELETE("/users/:id/friends/remove", s.Authenticate, s.RemoveFriend)
 
 	router.POST("/otps/request", s.RequestOtp)
 }
