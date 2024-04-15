@@ -1,0 +1,38 @@
+logger:
+  mode: "development"
+  encoding: "json"
+  level: "debug"
+  log_file: "logs/app.log"
+  stack_trace: true
+
+http:
+  host: "0.0.0.0"
+  port: 8080
+  origin:
+  allowOrigins:
+    - '*'
+  secret: "xxx"
+  enable_ssl: false
+  cert_file:
+  key_file:
+  access_token_duration: 720
+
+db:
+  uri: "mongodb://hcmut:hcmut123456@app-chat-db:27017/app-chat-db?authMechanism=SCRAM-SHA-256"
+  user: "hcmut"
+  password: "hcmut123456"
+  db_name: "app-chat-db"
+
+otel:
+  trace_provider:
+    enable: false
+    endpoint: "app-chat-jaeger:4318"
+    insecure: true
+  metric:
+    enable: false
+
+mail:
+  host: smtp.gmail.com
+  port: 587
+  user: remsokawaii1@gmail.com
+  password: prgc fsdl wgdc tttb
