@@ -280,3 +280,111 @@ func (s *Server) DeleteUser(ctx *gin.Context) {
 		return
 	}
 }
+
+// SendFriendRequest godoc
+//
+//	@Summary	SendFriendRequest
+//	@Description
+//	@Tags		users
+//	@Produce	json
+//	@Param		Authorization	header		string	true	"Bearer token"
+//	@Success	200				{object}	dto.HTTPResp
+//	@Failure	400				{object}	dto.HTTPResp
+//	@Failure	500				{object}	dto.HTTPResp
+//	@Router		/api/users/{id}/friends/request [post]
+func (s *Server) SendFriendRequest(ctx *gin.Context) {
+	id := ctx.Param("id")
+	_, err := s.UserSvc.SendFriendRequest(ctxFromGin(ctx),
+		&entity.User{
+			ID: entity.GetUserFromContext(ctxFromGin(ctx)).ID,
+		},
+		&entity.User{
+			ID: id,
+		},
+	)
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+}
+
+// RejectFriendRequest godoc
+//
+//	@Summary	RejectFriendRequest
+//	@Description
+//	@Tags		users
+//	@Produce	json
+//	@Param		Authorization	header		string	true	"Bearer token"
+//	@Success	200				{object}	dto.HTTPResp
+//	@Failure	400				{object}	dto.HTTPResp
+//	@Failure	500				{object}	dto.HTTPResp
+//	@Router		/api/users/{id}/friends/reject [delete]
+func (s *Server) RejectFriendRequest(ctx *gin.Context) {
+	id := ctx.Param("id")
+	_, err := s.UserSvc.RejectFriendRequest(ctxFromGin(ctx),
+		&entity.User{
+			ID: entity.GetUserFromContext(ctxFromGin(ctx)).ID,
+		},
+		&entity.User{
+			ID: id,
+		},
+	)
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+}
+
+// AcceptFriendRequest godoc
+//
+//	@Summary	AcceptFriendRequest
+//	@Description
+//	@Tags		users
+//	@Produce	json
+//	@Param		Authorization	header		string	true	"Bearer token"
+//	@Success	200				{object}	dto.HTTPResp
+//	@Failure	400				{object}	dto.HTTPResp
+//	@Failure	500				{object}	dto.HTTPResp
+//	@Router		/api/users/{id}/friends/accept [post]
+func (s *Server) AcceptFriendRequest(ctx *gin.Context) {
+	id := ctx.Param("id")
+	_, err := s.UserSvc.AcceptFriendRequest(ctxFromGin(ctx),
+		&entity.User{
+			ID: entity.GetUserFromContext(ctxFromGin(ctx)).ID,
+		},
+		&entity.User{
+			ID: id,
+		},
+	)
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+}
+
+// RemoveFriend godoc
+//
+//	@Summary	RemoveFriend
+//	@Description
+//	@Tags		users
+//	@Produce	json
+//	@Param		Authorization	header		string	true	"Bearer token"
+//	@Success	200				{object}	dto.HTTPResp
+//	@Failure	400				{object}	dto.HTTPResp
+//	@Failure	500				{object}	dto.HTTPResp
+//	@Router		/api/users/{id}/friends/remove [delete]
+func (s *Server) RemoveFriend(ctx *gin.Context) {
+	id := ctx.Param("id")
+	_, err := s.UserSvc.RemoveFriend(ctxFromGin(ctx),
+		&entity.User{
+			ID: entity.GetUserFromContext(ctxFromGin(ctx)).ID,
+		},
+		&entity.User{
+			ID: id,
+		},
+	)
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+}

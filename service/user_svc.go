@@ -236,3 +236,95 @@ func (s *UserService) DeleteUser(ctx context.Context, e *entity.User) (res any, 
 	err = s.UserRepo.DeleteUser(ctx, dbUser)
 	return
 }
+
+func (s *UserService) SendFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (res any, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	_, err = s.UserRepo.GetUserById(ctx, user.ID)
+	if err != nil {
+		return
+	}
+	_, err = s.UserRepo.GetUserById(ctx, friend.ID)
+	if err != nil {
+		return
+	}
+
+	err = s.UserRepo.AddFriendRequest(ctx, user, friend)
+	return
+}
+
+func (s *UserService) RejectFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (res any, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	_, err = s.UserRepo.GetUserById(ctx, user.ID)
+	if err != nil {
+		return
+	}
+	_, err = s.UserRepo.GetUserById(ctx, friend.ID)
+	if err != nil {
+		return
+	}
+
+	err = s.UserRepo.RemoveFriendRequest(ctx, user, friend)
+	return
+}
+
+func (s *UserService) AcceptFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (res any, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	_, err = s.UserRepo.GetUserById(ctx, user.ID)
+	if err != nil {
+		return
+	}
+	_, err = s.UserRepo.GetUserById(ctx, friend.ID)
+	if err != nil {
+		return
+	}
+
+	res, err = s.UserRepo.ExecTransaction(ctx, func(ctx context.Context) (res any, err error) {
+		err = s.UserRepo.RemoveFriendRequest(ctx, user, friend)
+		if err != nil {
+			return
+		}
+		err = s.UserRepo.AddFriend(ctx, user, friend)
+		if err != nil {
+			return
+		}
+		err = s.UserRepo.AddFriend(ctx, friend, user)
+		if err != nil {
+			return
+		}
+		return
+	})
+	return
+}
+
+func (s *UserService) RemoveFriend(ctx context.Context, user *entity.User, friend *entity.User) (res any, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	_, err = s.UserRepo.GetUserById(ctx, user.ID)
+	if err != nil {
+		return
+	}
+	_, err = s.UserRepo.GetUserById(ctx, friend.ID)
+	if err != nil {
+		return
+	}
+
+	res, err = s.UserRepo.ExecTransaction(ctx, func(ctx context.Context) (res any, err error) {
+		err = s.UserRepo.RemoveFriend(ctx, user, friend)
+		if err != nil {
+			return
+		}
+		err = s.UserRepo.RemoveFriend(ctx, friend, user)
+		if err != nil {
+			return
+		}
+		return
+	})
+	return
+}

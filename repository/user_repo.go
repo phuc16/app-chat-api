@@ -75,6 +75,7 @@ func (r *Repo) GetUserById(ctx context.Context, id string) (res *entity.User, er
 	pipeLine = append(pipeLine, matchFieldPipeline("deleted_at", nil))
 	pipeLine = append(pipeLine, limitPipeline(1))
 	pipeLine = append(pipeLine, friendsLookupPipeline)
+	pipeLine = append(pipeLine, friendRequestsLookupPipeline)
 	// pipeLine = append(pipeLine, friendsUnwindPipeline)
 
 	cursor, err := r.userColl().Aggregate(ctx, pipeLine, collationAggregateOption)
@@ -104,7 +105,8 @@ func (r *Repo) GetUserByEmail(ctx context.Context, email string) (res *entity.Us
 	pipeLine = append(pipeLine, matchFieldPipeline("deleted_at", nil))
 	pipeLine = append(pipeLine, limitPipeline(1))
 	pipeLine = append(pipeLine, friendsLookupPipeline)
-	pipeLine = append(pipeLine, friendsUnwindPipeline)
+	pipeLine = append(pipeLine, friendRequestsLookupPipeline)
+	// pipeLine = append(pipeLine, friendsUnwindPipeline)
 
 	cursor, err := r.userColl().Aggregate(ctx, pipeLine, collationAggregateOption)
 	if err != nil {
@@ -134,7 +136,8 @@ func (r *Repo) GetUserByUserName(ctx context.Context, username string) (res *ent
 	pipeLine = append(pipeLine, matchFieldPipeline("deleted_at", nil))
 	pipeLine = append(pipeLine, limitPipeline(1))
 	pipeLine = append(pipeLine, friendsLookupPipeline)
-	pipeLine = append(pipeLine, friendsUnwindPipeline)
+	pipeLine = append(pipeLine, friendRequestsLookupPipeline)
+	// pipeLine = append(pipeLine, friendsUnwindPipeline)
 
 	cursor, err := r.userColl().Aggregate(ctx, pipeLine, collationAggregateOption)
 	if err != nil {
@@ -343,4 +346,60 @@ func (r *Repo) CountUser(ctx context.Context) (total int64, err error) {
 		return
 	}
 	return
+}
+
+func (r *Repo) AddFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+	defer errors.WrapDatabaseError(&err)
+
+	filter := bson.D{{"id", user.ID}}
+	update := bson.M{"$addToSet": bson.M{"friend_request_ids": friend.ID}}
+	_, err = r.userColl().UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repo) RemoveFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+	defer errors.WrapDatabaseError(&err)
+
+	filter := bson.D{{"id", user.ID}}
+	update := bson.M{"$pull": bson.M{"friend_request_ids": friend.ID}}
+	_, err = r.userColl().UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repo) AddFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+	defer errors.WrapDatabaseError(&err)
+
+	filter := bson.D{{"id", user.ID}}
+	update := bson.M{"$addToSet": bson.M{"friend_ids": friend.ID}}
+	_, err = r.userColl().UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repo) RemoveFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+	defer errors.WrapDatabaseError(&err)
+
+	filter := bson.D{{"id", user.ID}}
+	update := bson.M{"$pull": bson.M{"friend_ids": friend.ID}}
+	_, err = r.userColl().UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -22,6 +22,10 @@ type IUserRepo interface {
 	UpdateUser(ctx context.Context, user *entity.User) error
 	DeleteUser(ctx context.Context, user *entity.User) error
 	CountUser(ctx context.Context) (total int64, err error)
+	AddFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (err error)
+	RemoveFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (err error)
+	AddFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error)
+	RemoveFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error)
 }
 type ITokenRepo interface {
 	ExecTransaction(ctx context.Context, fn func(ctx context.Context) (any, error)) (any, error)

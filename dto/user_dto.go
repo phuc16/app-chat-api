@@ -177,6 +177,7 @@ type UserResp struct {
 	AvatarUrl       string          `json:"avatar_url"`
 	Status          string          `json:"status"`
 	Friends         []*UserInfoResp `json:"friends"`
+	FriendRequests  []*UserInfoResp `json:"friend_requests"`
 	ConversationIds []string        `json:"conversation_ids"`
 	LastLoggedIn    time.Time       `json:"last_logged_in"`
 	CreatedAt       time.Time       `json:"created_at"`
@@ -193,6 +194,7 @@ func (r UserResp) FromUser(e *entity.User) *UserResp {
 		AvatarUrl:       e.AvatarUrl,
 		Status:          e.Status,
 		Friends:         fromFriendList(e.Friends),
+		FriendRequests:  fromFriendRequestList(e.FriendRequests),
 		ConversationIds: e.ConversationIds,
 		LastLoggedIn:    e.LastLoggedIn,
 		CreatedAt:       e.CreatedAt,
@@ -202,6 +204,13 @@ func (r UserResp) FromUser(e *entity.User) *UserResp {
 
 func fromFriendList(friendList []*entity.User) (userInfoList []*UserInfoResp) {
 	for _, v := range friendList {
+		userInfoList = append(userInfoList, UserInfoResp{}.FromUser(v))
+	}
+	return
+}
+
+func fromFriendRequestList(friendRequestList []*entity.User) (userInfoList []*UserInfoResp) {
+	for _, v := range friendRequestList {
 		userInfoList = append(userInfoList, UserInfoResp{}.FromUser(v))
 	}
 	return
