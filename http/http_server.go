@@ -56,6 +56,7 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 	router.DELETE("/users/:id/friends/reject", s.Authenticate, s.RejectFriendRequest)
 	router.POST("/users/:id/friends/accept", s.Authenticate, s.AcceptFriendRequest)
 	router.DELETE("/users/:id/friends/remove", s.Authenticate, s.RemoveFriend)
+	router.GET("/users/friends/suggest", s.Authenticate, s.SuggestFriend)
 
 	router.POST("/otps/request", s.RequestOtp)
 }

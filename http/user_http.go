@@ -98,7 +98,7 @@ func (s *Server) GetProfile(ctx *gin.Context) {
 //	@Param		sort			query		string	false	"name of field need to sort"
 //	@Param		sort_type		query		string	false	"sort desc or asc"
 //	@Param		search			query		string	false	"keyword to search in model"
-//	@Success	200				{object}	dto.HTTPResp
+//	@Success	200				{object}	dto.UserListResp
 //	@Failure	400				{object}	dto.HTTPResp
 //	@Failure	500				{object}	dto.HTTPResp
 //	@Router		/api/users [get]
@@ -387,4 +387,30 @@ func (s *Server) RemoveFriend(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+}
+
+// SuggestFriend godoc
+//
+//	@Summary	SuggestFriend
+//	@Description
+//	@Tags		users
+//	@Produce	json
+//	@Param		Authorization	header		string	true	"Bearer token"
+//	@Success	200				{object}	[]dto.UserResp
+//	@Failure	400				{object}	dto.HTTPResp
+//	@Failure	500				{object}	dto.HTTPResp
+//	@Router		/api/users/friends/suggest [get]
+func (s *Server) SuggestFriend(ctx *gin.Context) {
+	users, err := s.UserSvc.SuggestFriend(ctxFromGin(ctx), &entity.User{
+		ID: entity.GetUserFromContext(ctxFromGin(ctx)).ID,
+	})
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+	var list = []*dto.UserResp{}
+	for _, u := range users {
+		list = append(list, dto.UserResp{}.FromUser(u))
+	}
+	ctx.AbortWithStatusJSON(200, list)
 }
