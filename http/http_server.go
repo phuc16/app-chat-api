@@ -25,11 +25,12 @@ import (
 )
 
 type Server struct {
-	UserSvc *service.UserService
-	OtpSvc  *service.OtpService
+	UserSvc   *service.UserService
+	OtpSvc    *service.OtpService
+	SocketSvc *service.WebSocketService
 }
 
-func NewServer(userSvc *service.UserService, otpSvc *service.OtpService) *Server {
+func NewServer(userSvc *service.UserService, otpSvc *service.OtpService, socketSvc *service.WebSocketService) *Server {
 	return &Server{UserSvc: userSvc, OtpSvc: otpSvc}
 }
 
@@ -58,6 +59,7 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 	router.DELETE("/users/:id/friends/remove", s.Authenticate, s.RemoveFriend)
 	router.GET("/users/friends/suggest", s.Authenticate, s.SuggestFriend)
 
+	router.GET("/ws", s.ServeWs)
 	router.POST("/otps/request", s.RequestOtp)
 }
 
