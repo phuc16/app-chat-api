@@ -425,8 +425,3 @@ func (r *Repo) RemoveFriend(ctx context.Context, user *entity.User, friend *enti
 	}
 	return nil
 }
-
-func (r *Repo) AddNewConversationToUser(ctx context.Context, userID string) (err error) {
-	// TODO: Implement this
-	return nil
-}

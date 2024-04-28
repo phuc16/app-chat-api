@@ -88,13 +88,6 @@ func (s *WebSocketService) Receiver(ctx context.Context, client *Client) {
 			if err != nil {
 				panic(err)
 			}
-			for _, userId := range m.ListUserInNewChat {
-				err = s.UserRepo.AddNewConversationToUser(ctx, userId)
-				fmt.Println("AddNewConversationToUser", userId)
-				if err != nil {
-					panic(err)
-				}
-			}
 			client.UserID = m.Chat.FromUserId
 		} else {
 			fmt.Println("received message", m.Type, m.Chat)

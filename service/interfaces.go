@@ -27,9 +27,6 @@ type IUserRepo interface {
 	RemoveFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (err error)
 	AddFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error)
 	RemoveFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error)
-
-	// newFunc
-	AddNewConversationToUser(ctx context.Context, userID string) (err error)
 }
 type ITokenRepo interface {
 	ExecTransaction(ctx context.Context, fn func(ctx context.Context) (any, error)) (any, error)
