@@ -8,5 +8,5 @@ import (
 
 func (s *Server) ServeWs(ctx *gin.Context) {
 	user := entity.GetUserFromContext(ctxFromGin(ctx))
-	s.SocketSvc.ServeWs(ctxFromGin(ctx), user.Name, ctx.Writer, ctx.Request)
+	s.SocketSvc.ServeWs(ctxFromGin(ctx), user.ID, ctx.Writer, ctx.Request)
 }

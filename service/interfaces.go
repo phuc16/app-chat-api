@@ -27,6 +27,9 @@ type IUserRepo interface {
 	RemoveFriendRequest(ctx context.Context, user *entity.User, friend *entity.User) (err error)
 	AddFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error)
 	RemoveFriend(ctx context.Context, user *entity.User, friend *entity.User) (err error)
+
+	// newFunc
+	AddNewConversationToUser(ctx context.Context, userID string) (err error)
 }
 type ITokenRepo interface {
 	ExecTransaction(ctx context.Context, fn func(ctx context.Context) (any, error)) (any, error)
@@ -48,4 +51,11 @@ type IOtpSvc interface {
 	GenerateOtp(ctx context.Context, email string) (res entity.Otp, err error)
 	VerifyOtp(ctx context.Context, e *entity.Otp) (res *entity.Otp, err error)
 	DeleteOtp(ctx context.Context, e *entity.Otp) (err error)
+}
+
+type ISocketRepo interface {
+	NewConversation(ctx context.Context, conservation *entity.Conversation) (err error)
+	GetConversationById(ctx context.Context, id string) (res *entity.Conversation, err error)
+	GetListUserInConversation(ctx context.Context, conversationId string) (res []string, err error)
+	AddNewChatToConversation(ctx context.Context, chat *entity.Chat) (err error)
 }

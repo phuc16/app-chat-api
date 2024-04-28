@@ -57,7 +57,7 @@ var rootCmd = &cobra.Command{
 
 		otpSvc := service.NewOtpService(repo, repo)
 		userSvc := service.NewUserService(otpSvc, repo, repo)
-		websocketSvc := service.NewWebSocketService(repo)
+		websocketSvc := service.NewWebSocketService(repo, repo)
 
 		httpSrv := http.NewServer(userSvc, otpSvc, websocketSvc)
 		quit := make(chan error)

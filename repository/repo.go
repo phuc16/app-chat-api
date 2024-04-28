@@ -42,5 +42,10 @@ func (r *Repo) InitIndex(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
+
+	_, err = r.CreateChatIndexes(ctx)
+	if err != nil {
+		return err
+	}
 	return
 }

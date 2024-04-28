@@ -1,6 +1,7 @@
 package service
 
 import (
+	"app/entity"
 	"app/pkg/trace"
 	"app/pkg/utils"
 	"context"
@@ -14,141 +15,120 @@ import (
 )
 
 type WebSocketService struct {
-	UserRepo IUserRepo
-}
-
-type Chat struct {
-	ID        string `json:"id"`
-	From      string `json:"from"`
-	To        string `json:"to"`
-	Msg       string `json:"message"`
-	Timestamp int64  `json:"timestamp"`
+	UserRepo   IUserRepo
+	SocketRepo ISocketRepo
 }
 
 type Client struct {
-	Conn     *websocket.Conn
-	Username string
-}
-
-type Message struct {
-	Type string `json:"type"`
-	User string `json:"user,omitempty"`
-	Chat Chat   `json:"chat,omitempty"`
+	Conn   *websocket.Conn
+	UserID string
 }
 
 var clients = make(map[*Client]bool)
-var broadcast = make(chan *Chat)
+var broadcast = make(chan *entity.Chat)
 
-// We'll need to define an Upgrader
-// this will require a Read and Write buffer size
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 
-	// We'll need to check the origin of our connection
-	// this will allow us to make requests from our React
-	// development server to here.
-	// For now, we'll do no checking and just allow any connection
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-func NewWebSocketService(userRepo IUserRepo) *WebSocketService {
-	return &WebSocketService{UserRepo: userRepo}
+func NewWebSocketService(userRepo IUserRepo, socketRepo ISocketRepo) *WebSocketService {
+	return &WebSocketService{UserRepo: userRepo, SocketRepo: socketRepo}
 }
 
-// define our WebSocket endpoint
-func (s *WebSocketService) ServeWs(ctx context.Context, username string, w http.ResponseWriter, r *http.Request) {
+func (s *WebSocketService) ServeWs(ctx context.Context, userID string, w http.ResponseWriter, r *http.Request) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
-	go Broadcaster(ctx)
+	go s.Broadcaster(ctx)
 
 	fmt.Println(r.Host, r.URL.Query())
 
-	// upgrade this connection to a WebSocket
-	// connection
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 	}
 
-	client := &Client{Conn: ws, Username: username}
-	// register client
+	client := &Client{Conn: ws, UserID: userID}
 	clients[client] = true
 	fmt.Println("clients", len(clients), clients, ws.RemoteAddr())
-
-	// listen indefinitely for new messages coming
-	// through on our WebSocket connection
-	Receiver(ctx, client)
+	s.Receiver(ctx, client)
 
 	fmt.Println("exiting", ws.RemoteAddr().String())
 	delete(clients, client)
 }
 
-// define a receiver which will listen for
-// new messages being sent to our WebSocket
-// endpoint
-func Receiver(ctx context.Context, client *Client) {
+func (s *WebSocketService) Receiver(ctx context.Context, client *Client) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	for {
-		// read in a message
-		// readMessage returns messageType, message, err
-		// messageType: 1-> Text Message, 2 -> Binary Message
 		_, p, err := client.Conn.ReadMessage()
 		if err != nil {
-			log.Println(err)
-			return
+			panic(err)
 		}
 
-		m := &Message{}
+		m := &entity.Message{}
 
 		err = json.Unmarshal(p, m)
 		if err != nil {
-			log.Println("error while unmarshaling chat", err)
-			continue
+			panic(err)
 		}
 
 		fmt.Println("host", client.Conn.RemoteAddr())
-		if m.Type == "bootup" {
-			// do mapping on bootup
-			client.Username = m.User
-			fmt.Println("client successfully mapped", &client, client, client.Username)
+
+		if m.Type == "newChat" {
+			newRepo := &entity.Conversation{
+				ID:       utils.NewID(),
+				Name:     "new_chat",
+				ListUser: m.ListUserInNewChat,
+				Chat:     []entity.Chat{m.Chat},
+			}
+			err = s.SocketRepo.NewConversation(ctx, newRepo)
+			if err != nil {
+				panic(err)
+			}
+			for _, userId := range m.ListUserInNewChat {
+				err = s.UserRepo.AddNewConversationToUser(ctx, userId)
+				fmt.Println("AddNewConversationToUser", userId)
+				if err != nil {
+					panic(err)
+				}
+			}
+			client.UserID = m.Chat.FromUserId
 		} else {
 			fmt.Println("received message", m.Type, m.Chat)
 			c := m.Chat
-			c.Timestamp = time.Now().Unix()
+			c.Timestamp = time.Now()
 
-			// save in redis
-			// id, err := redisrepo.CreateChat(&c)
-			id := "this is chat id"
-			// if err != nil {
-			// 	log.Println("error while saving chat in redis", err)
-			// 	return
-			// }
+			err = s.SocketRepo.AddNewChatToConversation(ctx, &m.Chat)
+			if err != nil {
+				panic(err)
+			}
 
-			c.ID = id
+			c.ID = utils.NewID()
 			broadcast <- &c
 		}
 	}
 }
 
-func Broadcaster(ctx context.Context) {
+func (s *WebSocketService) Broadcaster(ctx context.Context) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	for {
-		fmt.Println("Printed every second")
-		time.Sleep(time.Second)
 		message := <-broadcast
-		// send to every client that is currently connected
 		fmt.Println("new message", message)
 
 		for client := range clients {
-			// send message only to involved users
-			fmt.Println("username:", client.Username,
-				"from:", message.From,
-				"to:", message.To)
+			fmt.Println("userID:", client.UserID,
+				"from:", message.FromUserId,
+				"to:", message.ToConversationId)
 
-			if client.Username == message.From || client.Username == message.To {
+			listUser, err := s.SocketRepo.GetListUserInConversation(ctx, message.ToConversationId)
+			if err != nil {
+				panic(err)
+			}
+			if client.UserID == message.FromUserId || utils.ContainsString(listUser, client.UserID) {
 				err := client.Conn.WriteJSON(message)
 				if err != nil {
 					log.Printf("Websocket error: %s", err)
@@ -159,20 +139,3 @@ func Broadcaster(ctx context.Context) {
 		}
 	}
 }
-
-// func setupRoutes() {
-// 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Fprintf(w, "Simple Server1")
-// 	})
-// 	// map our `/ws` endpoint to the `serveWs` function
-// 	http.HandleFunc("/ws", ServeWs)
-// }
-
-// func StartWebsocketServer() {
-// 	// redisClient := redisrepo.InitialiseRedis()
-// 	// defer redisClient.Close()
-
-// 	go broadcaster()
-// 	setupRoutes()
-// 	http.ListenAndServe(":8080", nil)
-// }

@@ -24,3 +24,12 @@ func Random(n int) string {
 func NewID() string {
 	return uuid.NewString()
 }
+
+func ContainsString(list []string, str string) bool {
+	for _, s := range list {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
