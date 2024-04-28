@@ -84,10 +84,13 @@ func (s *WebSocketService) Receiver(ctx context.Context, client *Client) {
 				ListUser: m.ListUserInNewChat,
 				Chat:     []entity.Chat{m.Chat},
 			}
-			err = s.SocketRepo.NewConversation(ctx, newRepo)
-			if err != nil {
-				panic(err)
-			}
+			_, err = s.SocketRepo.ExecTransaction(ctx, func(ctx context.Context) (res any, err error) {
+				err = s.SocketRepo.NewConversation(ctx, newRepo)
+				if err != nil {
+					return
+				}
+				return
+			})
 			client.UserID = m.Chat.FromUserId
 		} else {
 			fmt.Println("received message", m.Type, m.Chat)

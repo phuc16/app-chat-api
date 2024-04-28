@@ -51,6 +51,7 @@ type IOtpSvc interface {
 }
 
 type ISocketRepo interface {
+	ExecTransaction(ctx context.Context, fn func(ctx context.Context) (any, error)) (any, error)
 	NewConversation(ctx context.Context, conservation *entity.Conversation) (err error)
 	GetConversationById(ctx context.Context, id string) (res *entity.Conversation, err error)
 	GetListUserInConversation(ctx context.Context, conversationId string) (res []string, err error)
