@@ -120,3 +120,16 @@ var friendRequestsLookupPipeline = bson.D{
 		{"as", "friend_requests"},
 	}},
 }
+
+var conversationsUnwindPipeline = bson.D{{"$unwind", bson.M{
+	"path":                       "$conversations",
+	"preserveNullAndEmptyArrays": true,
+}}}
+var conversationsLookupPipeline = bson.D{
+	{"$lookup", bson.D{
+		{"from", "conversations"},
+		{"localField", "conversation_ids"},
+		{"foreignField", "id"},
+		{"as", "conversations"},
+	}},
+}

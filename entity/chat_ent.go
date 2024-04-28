@@ -3,10 +3,12 @@ package entity
 import "time"
 
 type Conversation struct {
-	ID       string   `bson:"id"`
-	Name     string   `bson:"name"`
-	ListUser []string `bson:"list_user"`
-	Chat     []Chat   `bson:"chat"`
+	ID        string    `bson:"id"`
+	Name      string    `bson:"name"`
+	ListUser  []string  `bson:"list_user"`
+	Chat      []Chat    `bson:"chat"`
+	CreatedAt time.Time `bson:"created_at"`
+	UpdatedAt time.Time `bson:"updated_at"`
 }
 
 type Chat struct {

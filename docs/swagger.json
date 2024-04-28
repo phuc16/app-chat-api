@@ -220,10 +220,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.UserListResp"
-                            }
+                            "$ref": "#/definitions/dto.UserListResp"
                         }
                     },
                     "400": {
@@ -712,6 +709,23 @@
                 }
             }
         },
+        "dto.ConversationBasicInfoResp": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.HTTPResp": {
             "type": "object",
             "properties": {
@@ -879,10 +893,10 @@
                 "avatar_url": {
                     "type": "string"
                 },
-                "conversation_ids": {
+                "conversations": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dto.ConversationBasicInfoResp"
                     }
                 },
                 "created_at": {

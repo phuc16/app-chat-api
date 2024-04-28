@@ -16,7 +16,7 @@ import (
 )
 
 func (r *Repo) chatColl() *mongo.Collection {
-	return r.db.Database(config.Cfg.DB.DBName).Collection("chat")
+	return r.db.Database(config.Cfg.DB.DBName).Collection("conversations")
 }
 
 func (r *Repo) CreateChatIndexes(ctx context.Context) (res []string, err error) {

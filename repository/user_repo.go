@@ -76,7 +76,7 @@ func (r *Repo) GetUserById(ctx context.Context, id string) (res *entity.User, er
 	pipeLine = append(pipeLine, limitPipeline(1))
 	pipeLine = append(pipeLine, friendsLookupPipeline)
 	pipeLine = append(pipeLine, friendRequestsLookupPipeline)
-	// pipeLine = append(pipeLine, friendsUnwindPipeline)
+	pipeLine = append(pipeLine, conversationsLookupPipeline)
 
 	cursor, err := r.userColl().Aggregate(ctx, pipeLine, collationAggregateOption)
 	if err != nil {
@@ -106,7 +106,7 @@ func (r *Repo) GetUserByEmail(ctx context.Context, email string) (res *entity.Us
 	pipeLine = append(pipeLine, limitPipeline(1))
 	pipeLine = append(pipeLine, friendsLookupPipeline)
 	pipeLine = append(pipeLine, friendRequestsLookupPipeline)
-	// pipeLine = append(pipeLine, friendsUnwindPipeline)
+	pipeLine = append(pipeLine, conversationsLookupPipeline)
 
 	cursor, err := r.userColl().Aggregate(ctx, pipeLine, collationAggregateOption)
 	if err != nil {
@@ -137,7 +137,7 @@ func (r *Repo) GetUserByUserName(ctx context.Context, username string) (res *ent
 	pipeLine = append(pipeLine, limitPipeline(1))
 	pipeLine = append(pipeLine, friendsLookupPipeline)
 	pipeLine = append(pipeLine, friendRequestsLookupPipeline)
-	// pipeLine = append(pipeLine, friendsUnwindPipeline)
+	pipeLine = append(pipeLine, conversationsLookupPipeline)
 
 	cursor, err := r.userColl().Aggregate(ctx, pipeLine, collationAggregateOption)
 	if err != nil {

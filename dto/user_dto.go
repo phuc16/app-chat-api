@@ -169,36 +169,36 @@ func (r UserDeleteReq) ToUser(ctx context.Context) (res *entity.User) {
 }
 
 type UserResp struct {
-	ID              string          `json:"id"`
-	Username        string          `json:"username"`
-	Email           string          `json:"email"`
-	Name            string          `json:"name"`
-	Phone           string          `json:"phone"`
-	AvatarUrl       string          `json:"avatar_url"`
-	Status          string          `json:"status"`
-	Friends         []*UserInfoResp `json:"friends"`
-	FriendRequests  []*UserInfoResp `json:"friend_requests"`
-	ConversationIds []string        `json:"conversation_ids"`
-	LastLoggedIn    time.Time       `json:"last_logged_in"`
-	CreatedAt       time.Time       `json:"created_at"`
-	UpdatedAt       time.Time       `json:"updated_at"`
+	ID             string                       `json:"id"`
+	Username       string                       `json:"username"`
+	Email          string                       `json:"email"`
+	Name           string                       `json:"name"`
+	Phone          string                       `json:"phone"`
+	AvatarUrl      string                       `json:"avatar_url"`
+	Status         string                       `json:"status"`
+	Friends        []*UserInfoResp              `json:"friends"`
+	FriendRequests []*UserInfoResp              `json:"friend_requests"`
+	Conversations  []*ConversationBasicInfoResp `json:"conversations"`
+	LastLoggedIn   time.Time                    `json:"last_logged_in"`
+	CreatedAt      time.Time                    `json:"created_at"`
+	UpdatedAt      time.Time                    `json:"updated_at"`
 }
 
 func (r UserResp) FromUser(e *entity.User) *UserResp {
 	return &UserResp{
-		ID:              e.ID,
-		Username:        e.Username,
-		Email:           e.Email,
-		Name:            e.Name,
-		Phone:           e.Phone,
-		AvatarUrl:       e.AvatarUrl,
-		Status:          e.Status,
-		Friends:         fromFriendList(e.Friends),
-		FriendRequests:  fromFriendRequestList(e.FriendRequests),
-		ConversationIds: e.ConversationIds,
-		LastLoggedIn:    e.LastLoggedIn,
-		CreatedAt:       e.CreatedAt,
-		UpdatedAt:       e.UpdatedAt,
+		ID:             e.ID,
+		Username:       e.Username,
+		Email:          e.Email,
+		Name:           e.Name,
+		Phone:          e.Phone,
+		AvatarUrl:      e.AvatarUrl,
+		Status:         e.Status,
+		Friends:        fromFriendList(e.Friends),
+		FriendRequests: fromFriendRequestList(e.FriendRequests),
+		Conversations:  fromConversationList(e.Conversations),
+		LastLoggedIn:   e.LastLoggedIn,
+		CreatedAt:      e.CreatedAt,
+		UpdatedAt:      e.UpdatedAt,
 	}
 }
 
@@ -212,6 +212,13 @@ func fromFriendList(friendList []*entity.User) (userInfoList []*UserInfoResp) {
 func fromFriendRequestList(friendRequestList []*entity.User) (userInfoList []*UserInfoResp) {
 	for _, v := range friendRequestList {
 		userInfoList = append(userInfoList, UserInfoResp{}.FromUser(v))
+	}
+	return
+}
+
+func fromConversationList(conversationList []*entity.Conversation) (conversationBasicInfoList []*ConversationBasicInfoResp) {
+	for _, v := range conversationList {
+		conversationBasicInfoList = append(conversationBasicInfoList, ConversationBasicInfoResp{}.FromConversation(v))
 	}
 	return
 }

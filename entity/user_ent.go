@@ -18,25 +18,26 @@ const (
 )
 
 type User struct {
-	ID               string     `bson:"id"`
-	Username         string     `bson:"username"`
-	Email            string     `bson:"email"`
-	Password         string     `bson:"password"`
-	Name             string     `bson:"name"`
-	Phone            string     `bson:"phone"`
-	AvatarUrl        string     `bson:"avatar_url"`
-	Status           string     `bson:"status"`
-	FriendRequestIds []string   `bson:"friend_request_ids"`
-	FriendRequests   []*User    `bson:"friend_requests,omitempty"`
-	FriendIds        []string   `bson:"friend_ids"`
-	Friends          []*User    `bson:"friends,omitempty"`
-	ConversationIds  []string   `bson:"conversation_ids"`
-	IsActive         bool       `bson:"is_active"`
-	LastLoggedIn     time.Time  `bson:"last_logged_in"`
-	Otp              string     `bson:"-"`
-	CreatedAt        time.Time  `bson:"created_at"`
-	UpdatedAt        time.Time  `bson:"updated_at"`
-	DeletedAt        *time.Time `bson:"deleted_at,omitempty"`
+	ID               string          `bson:"id"`
+	Username         string          `bson:"username"`
+	Email            string          `bson:"email"`
+	Password         string          `bson:"password"`
+	Name             string          `bson:"name"`
+	Phone            string          `bson:"phone"`
+	AvatarUrl        string          `bson:"avatar_url"`
+	Status           string          `bson:"status"`
+	FriendRequestIds []string        `bson:"friend_request_ids"`
+	FriendRequests   []*User         `bson:"friend_requests,omitempty"`
+	FriendIds        []string        `bson:"friend_ids"`
+	Friends          []*User         `bson:"friends,omitempty"`
+	ConversationIds  []string        `bson:"conversation_ids"`
+	Conversations    []*Conversation `bson:"conversations"`
+	IsActive         bool            `bson:"is_active"`
+	LastLoggedIn     time.Time       `bson:"last_logged_in"`
+	Otp              string          `bson:"-"`
+	CreatedAt        time.Time       `bson:"created_at"`
+	UpdatedAt        time.Time       `bson:"updated_at"`
+	DeletedAt        *time.Time      `bson:"deleted_at,omitempty"`
 }
 
 func (e User) GetUserName() string {

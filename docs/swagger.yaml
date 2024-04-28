@@ -4,6 +4,17 @@ definitions:
       access_token:
         type: string
     type: object
+  dto.ConversationBasicInfoResp:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   dto.HTTPResp:
     properties:
       code:
@@ -115,9 +126,9 @@ definitions:
     properties:
       avatar_url:
         type: string
-      conversation_ids:
+      conversations:
         items:
-          type: string
+          $ref: '#/definitions/dto.ConversationBasicInfoResp'
         type: array
       created_at:
         type: string
@@ -329,9 +340,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.UserListResp'
-            type: array
+            $ref: '#/definitions/dto.UserListResp'
         "400":
           description: Bad Request
           schema:
