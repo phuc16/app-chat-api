@@ -31,7 +31,7 @@ type Server struct {
 }
 
 func NewServer(userSvc *service.UserService, otpSvc *service.OtpService, socketSvc *service.WebSocketService) *Server {
-	return &Server{UserSvc: userSvc, OtpSvc: otpSvc}
+	return &Server{UserSvc: userSvc, OtpSvc: otpSvc, SocketSvc: socketSvc}
 }
 
 func (s *Server) Routes(router *gin.RouterGroup) {

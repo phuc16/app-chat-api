@@ -42,16 +42,9 @@ func (r *Repo) NewConversation(ctx context.Context, conservation *entity.Convers
 	_, err = r.chatColl().UpdateOne(ctx, bson.M{"id": conservation.ID}, update, opts)
 	if err != nil {
 		if strings.Contains(err.Error(), "E11000 duplicate key error collection") {
-			return errors.TokenExists()
+			return errors.DuplicateConversationId()
 		}
 		return err
-	}
-
-	for _, userId := range conservation.ListUser {
-		err = r.AddNewConversationToUser(ctx, userId, conservation.ID)
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
@@ -65,15 +58,12 @@ func (r *Repo) GetConversationById(ctx context.Context, id string) (res *entity.
 		{"id", id},
 	}
 	if err := r.chatColl().FindOne(ctx, filter).Decode(&d); err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, errors.TokenNotFound()
-		}
-		return nil, err
+		return nil, errors.CanNotGetConversationById()
 	}
 	return &d, nil
 }
 
-func (r *Repo) GetListUserInConversation(ctx context.Context, conversationId string) (res []string, err error) {
+func (r *Repo) GetListIDUserInConversation(ctx context.Context, conversationId string) (res []string, err error) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	defer errors.WrapDatabaseError(&err)
@@ -82,10 +72,7 @@ func (r *Repo) GetListUserInConversation(ctx context.Context, conversationId str
 		{"id", conversationId},
 	}
 	if err := r.chatColl().FindOne(ctx, filter).Decode(&d); err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, errors.TokenNotFound()
-		}
-		return nil, err
+		return nil, errors.CanNotGetListIDUserInConversation()
 	}
 	return d.ListUser, nil
 }
@@ -94,18 +81,11 @@ func (r *Repo) AddNewChatToConversation(ctx context.Context, chat *entity.Chat) 
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	defer errors.WrapDatabaseError(&err)
-	conversation, err := r.GetConversationById(ctx, chat.ToConversationId)
-	if err != nil {
-		return err
-	}
 	chat.Timestamp = time.Now()
-
-	conversation.Chat = append(conversation.Chat, *chat)
+	chat.ID = utils.NewID()
 
 	filter := bson.D{{"id", chat.ToConversationId}}
-	update := bson.D{
-		{"$set", bson.M{"chat": conversation.Chat}},
-	}
+	update := bson.M{"$addToSet": bson.M{"chat": chat}}
 
 	_, err = r.chatColl().UpdateOne(ctx, filter, update)
 	if err != nil {

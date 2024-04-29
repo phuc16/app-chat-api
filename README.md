@@ -1,6 +1,7 @@
 # app-chat-api
 
 Websocket note
+127.0.0.1:8080/api/ws
 {
     "type": "",
     "list_user": ["newChat"],

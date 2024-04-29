@@ -2,6 +2,7 @@ package service
 
 import (
 	"app/entity"
+	"app/errors"
 	"app/pkg/trace"
 	"app/pkg/utils"
 	"context"
@@ -59,27 +60,31 @@ func (s *WebSocketService) ServeWs(ctx context.Context, userID string, w http.Re
 	delete(clients, client)
 }
 
-func (s *WebSocketService) Receiver(ctx context.Context, client *Client) {
+func (s *WebSocketService) Receiver(ctx context.Context, client *Client) error {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	for {
 		_, p, err := client.Conn.ReadMessage()
 		if err != nil {
-			panic(err)
+			client.Conn.WriteJSON(err.Error())
+			return errors.UserNotFound()
 		}
 
 		m := &entity.Message{}
 
 		err = json.Unmarshal(p, m)
 		if err != nil {
-			panic(err)
+			client.Conn.WriteJSON(err.Error())
+			return errors.CanNotReadUnmarshalMessage()
 		}
 
 		fmt.Println("host", client.Conn.RemoteAddr())
 
 		if m.Type == "newChat" {
+			m.Chat.ID = utils.NewID()
+			m.Chat.ToConversationId = utils.NewID()
 			newRepo := &entity.Conversation{
-				ID:       utils.NewID(),
+				ID:       m.Chat.ToConversationId,
 				Name:     "new_chat",
 				ListUser: m.ListUserInNewChat,
 				Chat:     []entity.Chat{m.Chat},
@@ -87,7 +92,14 @@ func (s *WebSocketService) Receiver(ctx context.Context, client *Client) {
 			_, err = s.SocketRepo.ExecTransaction(ctx, func(ctx context.Context) (res any, err error) {
 				err = s.SocketRepo.NewConversation(ctx, newRepo)
 				if err != nil {
+					fmt.Println("NewConversation err", err)
 					return
+				}
+				for _, userId := range newRepo.ListUser {
+					err = s.SocketRepo.AddNewConversationToUser(ctx, userId, newRepo.ID)
+					if err != nil {
+						return
+					}
 				}
 				return
 			})
@@ -99,7 +111,8 @@ func (s *WebSocketService) Receiver(ctx context.Context, client *Client) {
 
 			err = s.SocketRepo.AddNewChatToConversation(ctx, &m.Chat)
 			if err != nil {
-				panic(err)
+				client.Conn.WriteJSON(err.Error())
+				return errors.CanNotAddNewChat()
 			}
 
 			c.ID = utils.NewID()
@@ -120,9 +133,9 @@ func (s *WebSocketService) Broadcaster(ctx context.Context) {
 				"from:", message.FromUserId,
 				"to:", message.ToConversationId)
 
-			listUser, err := s.SocketRepo.GetListUserInConversation(ctx, message.ToConversationId)
+			listUser, err := s.SocketRepo.GetListIDUserInConversation(ctx, message.ToConversationId)
 			if err != nil {
-				panic(err)
+				client.Conn.WriteJSON(err)
 			}
 			if client.UserID == message.FromUserId || utils.ContainsString(listUser, client.UserID) {
 				err := client.Conn.WriteJSON(message)
