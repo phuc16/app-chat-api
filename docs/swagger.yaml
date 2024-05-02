@@ -4,6 +4,31 @@ definitions:
       access_token:
         type: string
     type: object
+  dto.ChatListResp:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/dto.ChatResp'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ChatResp:
+    properties:
+      from:
+        type: string
+      id:
+        type: string
+      message: {}
+      timestamp:
+        type: string
+      to:
+        type: string
+    type: object
   dto.ConversationBasicInfoResp:
     properties:
       created_at:
@@ -19,6 +44,13 @@ definitions:
     properties:
       code:
         type: integer
+      msg:
+        type: string
+    type: object
+  dto.MessageUpdateReq:
+    properties:
+      chat_id:
+        type: string
       msg:
         type: string
     type: object
@@ -222,6 +254,79 @@ paths:
       summary: Logout
       tags:
       - authentications
+  /api/conversations/{id}/chats:
+    get:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: page of paging
+        in: query
+        name: page
+        type: integer
+      - description: size of page of paging
+        in: query
+        name: page_size
+        type: integer
+      - description: sort desc or asc
+        in: query
+        name: sort_type
+        type: string
+      - description: keyword to search in model, search by msg
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ChatListResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+      summary: GetChatList
+      tags:
+      - conversations
+    put:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MessageUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+      summary: UpdateMessage
+      tags:
+      - conversations
   /api/otps/request:
     post:
       parameters:

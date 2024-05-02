@@ -7,7 +7,7 @@ const (
 	UnmarshalMessageError
 	AddNewChatError
 	GetListUserInConversationError
-	GetConversationByIdError
+	CodeConversationNotFound
 	NewConversationError
 )
 
@@ -27,8 +27,8 @@ func CanNotGetListIDUserInConversation() *apperror.Error {
 	return apperror.NewError(GetListUserInConversationError, "can not get list id user in conversation")
 }
 
-func CanNotGetConversationById() *apperror.Error {
-	return apperror.NewError(GetConversationByIdError, "can not get conversation by id")
+func ConversationNotFound() *apperror.Error {
+	return apperror.NewError(CodeConversationNotFound, "conversation not found")
 }
 
 func DuplicateConversationId() *apperror.Error {

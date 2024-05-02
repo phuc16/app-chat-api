@@ -5,6 +5,7 @@ import (
 	"app/errors"
 	"app/pkg/trace"
 	"app/pkg/utils"
+	"app/repository"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -15,9 +16,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type WebSocketService struct {
-	UserRepo   IUserRepo
-	SocketRepo ISocketRepo
+type ConversationService struct {
+	UserRepo         IUserRepo
+	ConversationRepo IConversationRepo
 }
 
 type Client struct {
@@ -35,11 +36,11 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-func NewWebSocketService(userRepo IUserRepo, socketRepo ISocketRepo) *WebSocketService {
-	return &WebSocketService{UserRepo: userRepo, SocketRepo: socketRepo}
+func NewWebSocketService(userRepo IUserRepo, socketRepo IConversationRepo) *ConversationService {
+	return &ConversationService{UserRepo: userRepo, ConversationRepo: socketRepo}
 }
 
-func (s *WebSocketService) ServeWs(ctx context.Context, userID string, w http.ResponseWriter, r *http.Request) {
+func (s *ConversationService) ServeWs(ctx context.Context, userID string, w http.ResponseWriter, r *http.Request) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	go s.Broadcaster(ctx)
@@ -60,7 +61,7 @@ func (s *WebSocketService) ServeWs(ctx context.Context, userID string, w http.Re
 	delete(clients, client)
 }
 
-func (s *WebSocketService) Receiver(ctx context.Context, client *Client) error {
+func (s *ConversationService) Receiver(ctx context.Context, client *Client) error {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	for {
@@ -89,14 +90,14 @@ func (s *WebSocketService) Receiver(ctx context.Context, client *Client) error {
 				ListUser: m.ListUserInNewChat,
 				Chat:     []entity.Chat{m.Chat},
 			}
-			_, err = s.SocketRepo.ExecTransaction(ctx, func(ctx context.Context) (res any, err error) {
-				err = s.SocketRepo.NewConversation(ctx, newRepo)
+			_, err = s.ConversationRepo.ExecTransaction(ctx, func(ctx context.Context) (res any, err error) {
+				err = s.ConversationRepo.NewConversation(ctx, newRepo)
 				if err != nil {
 					fmt.Println("NewConversation err", err)
 					return
 				}
 				for _, userId := range newRepo.ListUser {
-					err = s.SocketRepo.AddNewConversationToUser(ctx, userId, newRepo.ID)
+					err = s.ConversationRepo.AddNewConversationToUser(ctx, userId, newRepo.ID)
 					if err != nil {
 						return
 					}
@@ -109,7 +110,7 @@ func (s *WebSocketService) Receiver(ctx context.Context, client *Client) error {
 			c := m.Chat
 			c.Timestamp = time.Now()
 
-			err = s.SocketRepo.AddNewChatToConversation(ctx, &m.Chat)
+			err = s.ConversationRepo.AddNewChatToConversation(ctx, &m.Chat)
 			if err != nil {
 				client.Conn.WriteJSON(err.Error())
 				return errors.CanNotAddNewChat()
@@ -121,7 +122,7 @@ func (s *WebSocketService) Receiver(ctx context.Context, client *Client) error {
 	}
 }
 
-func (s *WebSocketService) Broadcaster(ctx context.Context) {
+func (s *ConversationService) Broadcaster(ctx context.Context) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	for {
@@ -133,7 +134,7 @@ func (s *WebSocketService) Broadcaster(ctx context.Context) {
 				"from:", message.FromUserId,
 				"to:", message.ToConversationId)
 
-			listUser, err := s.SocketRepo.GetListIDUserInConversation(ctx, message.ToConversationId)
+			listUser, err := s.ConversationRepo.GetListIDUserInConversation(ctx, message.ToConversationId)
 			if err != nil {
 				client.Conn.WriteJSON(err)
 			}
@@ -147,4 +148,27 @@ func (s *WebSocketService) Broadcaster(ctx context.Context) {
 			}
 		}
 	}
+}
+
+func (s *ConversationService) GetChatList(ctx context.Context, id string, query *repository.QueryParams) (res []entity.Chat, total int64, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	return s.ConversationRepo.GetChatByConversationId(ctx, id, query)
+}
+
+func (s *ConversationService) UpdateMessage(ctx context.Context, e *entity.Conversation) (res any, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	_, err = s.ConversationRepo.GetConversationById(ctx, e.ID)
+	if err != nil {
+		return
+	}
+
+	err = s.ConversationRepo.UpdateMessage(ctx, e)
+	if err != nil {
+		return
+	}
+	return
 }

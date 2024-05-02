@@ -50,11 +50,13 @@ type IOtpSvc interface {
 	DeleteOtp(ctx context.Context, e *entity.Otp) (err error)
 }
 
-type ISocketRepo interface {
+type IConversationRepo interface {
 	ExecTransaction(ctx context.Context, fn func(ctx context.Context) (any, error)) (any, error)
 	NewConversation(ctx context.Context, conservation *entity.Conversation) (err error)
 	GetConversationById(ctx context.Context, id string) (res *entity.Conversation, err error)
 	GetListIDUserInConversation(ctx context.Context, conversationId string) (res []string, err error)
 	AddNewChatToConversation(ctx context.Context, chat *entity.Chat) (err error)
 	AddNewConversationToUser(ctx context.Context, userID string, conversationID string) (err error)
+	GetChatByConversationId(ctx context.Context, conversationId string, params *repository.QueryParams) (res []entity.Chat, total int64, err error)
+	UpdateMessage(ctx context.Context, conversation *entity.Conversation) (err error)
 }

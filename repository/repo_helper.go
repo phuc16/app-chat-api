@@ -24,6 +24,14 @@ func (p QueryParams) SkipLimitSortPipeline() (pipeline mongo.Pipeline) {
 	return pipeline
 }
 
+func (p QueryParams) SkipLimitChatPipeline() (pipeline mongo.Pipeline) {
+	return mongo.Pipeline{
+		{{"$sort", bson.D{{"chat.timestamp", -1}}}},
+		{{"$skip", p.Skip}},
+		{{"$limit", p.Limit}},
+	}
+}
+
 func (p QueryParams) SkipLimitPipeline() mongo.Pipeline {
 	pipeline := mongo.Pipeline{skipPipeline(p.Skip), limitPipeline(p.Limit)}
 	return pipeline
@@ -132,4 +140,10 @@ var conversationsLookupPipeline = bson.D{
 		{"foreignField", "id"},
 		{"as", "conversations"},
 	}},
+}
+
+var matchChatMsgPipeline = func(value interface{}) bson.D {
+	return bson.D{
+		{"$match", bson.M{"chat.msg": bson.M{"$regex": value}}},
+	}
 }

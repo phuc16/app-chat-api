@@ -2,7 +2,12 @@ package dto
 
 import (
 	"app/entity"
+	"app/errors"
+	"app/pkg/apperror"
+	"context"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ConversationBasicInfoResp struct {
@@ -19,4 +24,60 @@ func (r ConversationBasicInfoResp) FromConversation(e *entity.Conversation) *Con
 		CreatedAt: e.CreatedAt,
 		UpdatedAt: e.UpdatedAt,
 	}
+}
+
+type ChatResp struct {
+	ID               string      `json:"id"`
+	FromUserId       string      `json:"from"`
+	ToConversationId string      `json:"to"`
+	Msg              interface{} `json:"message"`
+	Timestamp        time.Time   `json:"timestamp"`
+}
+
+func (r ChatResp) FromChat(e entity.Chat) *ChatResp {
+	return &ChatResp{
+		ID:               e.ID,
+		FromUserId:       e.FromUserId,
+		ToConversationId: e.ToConversationId,
+		Msg:              e.Msg,
+		Timestamp:        e.Timestamp,
+	}
+}
+
+type ChatListResp struct {
+	Total    int64       `json:"total"`
+	Page     int         `json:"page"`
+	PageSize int         `json:"page_size"`
+	List     []*ChatResp `json:"list"`
+}
+
+type MessageUpdateReq struct {
+	ConversationID string `json:"-"`
+	ChatID         string `json:"chat_id"`
+	Msg            string `json:"msg"`
+}
+
+func (r MessageUpdateReq) Bind(ctx *gin.Context) (*MessageUpdateReq, error) {
+	err := ctx.ShouldBindJSON(&r)
+	if err != nil {
+		return nil, apperror.NewError(errors.CodeUnknownError, validationErrorToText(err))
+	}
+	return &r, nil
+}
+
+func (r MessageUpdateReq) Validate() (err error) {
+	return
+}
+
+func (r MessageUpdateReq) ToConversation(ctx context.Context) (res *entity.Conversation) {
+	res = &entity.Conversation{
+		ID: r.ConversationID,
+		Chat: []entity.Chat{
+			{
+				ID:  r.ChatID,
+				Msg: r.Msg,
+			},
+		},
+	}
+	return res
 }
