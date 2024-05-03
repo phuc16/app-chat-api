@@ -54,14 +54,22 @@ func (r *Repo) GetConversationById(ctx context.Context, id string) (res *entity.
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	defer errors.WrapDatabaseError(&err)
-	var d entity.Conversation
-	filter := bson.D{
-		{"id", id},
+	var d []*entity.Conversation
+	pipeLine := mongo.Pipeline{}
+	pipeLine = append(pipeLine, matchFieldPipeline("id", id))
+	pipeLine = append(pipeLine, conversationUsersLookupPipeline)
+
+	cursor, err := r.conversationColl().Aggregate(ctx, pipeLine, collationAggregateOption)
+	if err != nil {
+		return res, err
 	}
-	if err := r.conversationColl().FindOne(ctx, filter).Decode(&d); err != nil {
-		return nil, errors.ConversationNotFound()
+	if err = cursor.All(ctx, &d); err != nil {
+		return res, err
 	}
-	return &d, nil
+	if len(d) == 0 {
+		return res, errors.ConversationNotFound()
+	}
+	return d[0], nil
 }
 
 func (r *Repo) GetChatByConversationId(ctx context.Context, conversationId string, params *QueryParams) (res []entity.Chat, total int64, err error) {

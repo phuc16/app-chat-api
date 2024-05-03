@@ -6,6 +6,7 @@ type Conversation struct {
 	ID        string    `bson:"id"`
 	Name      string    `bson:"name"`
 	ListUser  []string  `bson:"list_user"`
+	Users     []*User   `bson:"users,omitempty"`
 	Chat      []Chat    `bson:"chat"`
 	CreatedAt time.Time `bson:"created_at"`
 	UpdatedAt time.Time `bson:"updated_at"`

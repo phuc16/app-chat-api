@@ -13,6 +13,29 @@ func (s *Server) ServeWs(ctx *gin.Context) {
 	s.ConversationSvc.ServeWs(ctxFromGin(ctx), user.ID, ctx.Writer, ctx.Request)
 }
 
+// GetConversation godoc
+//
+//	@Summary	GetConversation
+//	@Description
+//	@Tags		conversations
+//	@Produce	json
+//	@Param		Authorization	header		string	true	"Bearer token"
+//	@Success	200				{object}	dto.ConversationInfoResp
+//	@Failure	400				{object}	dto.HTTPResp
+//	@Failure	500				{object}	dto.HTTPResp
+//	@Router		/api/conversations/{id} [get]
+func (s *Server) GetConversation(ctx *gin.Context) {
+	id := ctx.Param("id")
+	conversation, err := s.ConversationSvc.GetConversation(ctxFromGin(ctx), &entity.Conversation{
+		ID: id,
+	})
+	if err != nil {
+		abortWithStatusError(ctx, 400, err)
+		return
+	}
+	ctx.AbortWithStatusJSON(200, dto.ConversationInfoResp{}.FromConversation(conversation))
+}
+
 // GetChatList godoc
 //
 //	@Summary	GetChatList

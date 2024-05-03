@@ -62,6 +62,7 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 	router.GET("/ws", s.ServeWs)
 	router.POST("/otps/request", s.RequestOtp)
 
+	router.GET("/conversations/:id", s.Authenticate, s.GetConversation)
 	router.GET("/conversations/:id/chats", s.Authenticate, s.GetChatList)
 	router.PUT("/conversations/:id/chats", s.Authenticate, s.UpdateMessage)
 }

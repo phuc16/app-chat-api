@@ -40,6 +40,21 @@ definitions:
       updated_at:
         type: string
     type: object
+  dto.ConversationInfoResp:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/dto.UserInfoResp'
+        type: array
+    type: object
   dto.HTTPResp:
     properties:
       code:
@@ -254,6 +269,32 @@ paths:
       summary: Logout
       tags:
       - authentications
+  /api/conversations/{id}:
+    get:
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ConversationInfoResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.HTTPResp'
+      summary: GetConversation
+      tags:
+      - conversations
   /api/conversations/{id}/chats:
     get:
       parameters:

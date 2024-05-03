@@ -87,6 +87,15 @@ func (s *UserService) UserLogout(ctx context.Context, tokenStr string) (err erro
 	if err != nil {
 		return
 	}
+	dbUser, err := s.UserRepo.GetUserById(ctx, dbToken.UserID)
+	if err != nil {
+		return
+	}
+	dbUser.LoggedOut()
+	err = s.UserRepo.SaveUser(ctx, dbUser)
+	if err != nil {
+		return
+	}
 	err = s.TokenRepo.DeleteToken(ctx, dbToken)
 	return
 }

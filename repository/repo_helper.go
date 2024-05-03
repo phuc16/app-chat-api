@@ -142,6 +142,19 @@ var conversationsLookupPipeline = bson.D{
 	}},
 }
 
+var conversationUsersUnwindPipeline = bson.D{{"$unwind", bson.M{
+	"path":                       "$users",
+	"preserveNullAndEmptyArrays": true,
+}}}
+var conversationUsersLookupPipeline = bson.D{
+	{"$lookup", bson.D{
+		{"from", "users"},
+		{"localField", "list_user"},
+		{"foreignField", "id"},
+		{"as", "users"},
+	}},
+}
+
 var matchChatMsgPipeline = func(value interface{}) bson.D {
 	return bson.D{
 		{"$match", bson.M{"chat.msg": bson.M{"$regex": value}}},

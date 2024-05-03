@@ -26,6 +26,31 @@ func (r ConversationBasicInfoResp) FromConversation(e *entity.Conversation) *Con
 	}
 }
 
+type ConversationInfoResp struct {
+	ID        string          `json:"id"`
+	Name      string          `json:"name"`
+	Users     []*UserInfoResp `json:"users"`
+	CreatedAt time.Time       `json:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at"`
+}
+
+func fromUserList(userList []*entity.User) (userInfoList []*UserInfoResp) {
+	for _, v := range userList {
+		userInfoList = append(userInfoList, UserInfoResp{}.FromUser(v))
+	}
+	return
+}
+
+func (r ConversationInfoResp) FromConversation(e *entity.Conversation) *ConversationInfoResp {
+	return &ConversationInfoResp{
+		ID:        e.ID,
+		Name:      e.Name,
+		Users:     fromUserList(e.Users),
+		CreatedAt: e.CreatedAt,
+		UpdatedAt: e.UpdatedAt,
+	}
+}
+
 type ChatResp struct {
 	ID               string      `json:"id"`
 	FromUserId       string      `json:"from"`

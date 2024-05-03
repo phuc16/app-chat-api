@@ -89,6 +89,8 @@ func (s *ConversationService) Receiver(ctx context.Context, client *Client) erro
 				Name:     "new_chat",
 				ListUser: m.ListUserInNewChat,
 				Chat:     []entity.Chat{m.Chat},
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			}
 			_, err = s.ConversationRepo.ExecTransaction(ctx, func(ctx context.Context) (res any, err error) {
 				err = s.ConversationRepo.NewConversation(ctx, newRepo)
@@ -148,6 +150,13 @@ func (s *ConversationService) Broadcaster(ctx context.Context) {
 			}
 		}
 	}
+}
+
+func (s *ConversationService) GetConversation(ctx context.Context, e *entity.Conversation) (res *entity.Conversation, err error) {
+	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
+	defer span.End()
+
+	return s.ConversationRepo.GetConversationById(ctx, e.ID)
 }
 
 func (s *ConversationService) GetChatList(ctx context.Context, id string, query *repository.QueryParams) (res []entity.Chat, total int64, err error) {
