@@ -150,11 +150,11 @@ func (s *UserService) CreateUser(ctx context.Context, e *entity.User) (res any, 
 	if err != nil {
 		return
 	}
-	err = s.UserRepo.SaveUser(ctx, user)
+	_, err = s.OtpSvc.GenerateOtp(ctx, user.Email)
 	if err != nil {
 		return
 	}
-	_, err = s.OtpSvc.GenerateOtp(ctx, user.Email)
+	err = s.UserRepo.SaveUser(ctx, user)
 	return
 }
 
