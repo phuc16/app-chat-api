@@ -67,7 +67,7 @@ func (s *Server) Logout(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatus(http.StatusOK)
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // GetProfile godoc
@@ -176,6 +176,7 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // ActiveUser godoc
@@ -200,6 +201,7 @@ func (s *Server) ActiveUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // ResetPassword godoc
@@ -224,6 +226,7 @@ func (s *Server) ResetPassword(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // UpdateUser godoc
@@ -254,6 +257,7 @@ func (s *Server) UpdateUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // DeleteUser godoc
@@ -279,6 +283,7 @@ func (s *Server) DeleteUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // SendFriendRequest godoc
@@ -306,6 +311,7 @@ func (s *Server) SendFriendRequest(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // RejectFriendRequest godoc
@@ -333,6 +339,7 @@ func (s *Server) RejectFriendRequest(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // AcceptFriendRequest godoc
@@ -360,6 +367,7 @@ func (s *Server) AcceptFriendRequest(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // RemoveFriend godoc
@@ -387,6 +395,7 @@ func (s *Server) RemoveFriend(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
 
 // SuggestFriend godoc

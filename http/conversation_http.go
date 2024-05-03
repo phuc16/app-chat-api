@@ -2,6 +2,7 @@ package http
 
 import (
 	"app/entity"
+	"net/http"
 
 	"app/dto"
 
@@ -107,4 +108,5 @@ func (s *Server) UpdateMessage(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
+	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
 }
