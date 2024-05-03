@@ -108,5 +108,5 @@ func (s *Server) UpdateMessage(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }

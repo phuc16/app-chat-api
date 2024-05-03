@@ -67,7 +67,7 @@ func (s *Server) Logout(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // GetProfile godoc
@@ -176,7 +176,7 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // ActiveUser godoc
@@ -201,7 +201,7 @@ func (s *Server) ActiveUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // ResetPassword godoc
@@ -226,7 +226,7 @@ func (s *Server) ResetPassword(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // UpdateUser godoc
@@ -257,7 +257,7 @@ func (s *Server) UpdateUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // DeleteUser godoc
@@ -283,7 +283,7 @@ func (s *Server) DeleteUser(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // SendFriendRequest godoc
@@ -311,7 +311,7 @@ func (s *Server) SendFriendRequest(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // RejectFriendRequest godoc
@@ -339,7 +339,7 @@ func (s *Server) RejectFriendRequest(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // AcceptFriendRequest godoc
@@ -367,7 +367,7 @@ func (s *Server) AcceptFriendRequest(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // RemoveFriend godoc
@@ -395,7 +395,7 @@ func (s *Server) RemoveFriend(ctx *gin.Context) {
 		abortWithStatusError(ctx, 400, err)
 		return
 	}
-	ctx.AbortWithStatusJSON(http.StatusOK, "OK")
+	ctx.AbortWithStatusJSON(http.StatusOK, map[string]string{"msg": "ok"})
 }
 
 // SuggestFriend godoc
