@@ -128,6 +128,8 @@ definitions:
         type: string
       phone:
         type: string
+      role:
+        type: string
       status:
         type: string
       username:
@@ -196,6 +198,8 @@ definitions:
       name:
         type: string
       phone:
+        type: string
+      role:
         type: string
       status:
         type: string
