@@ -52,19 +52,21 @@ func (r ConversationInfoResp) FromConversation(e *entity.Conversation) *Conversa
 }
 
 type ChatResp struct {
-	ID               string      `json:"id"`
-	FromUserId       string      `json:"from"`
-	ToConversationId string      `json:"to"`
-	Msg              interface{} `json:"message"`
-	Timestamp        time.Time   `json:"timestamp"`
+	ID               string    `json:"id"`
+	FromUserId       string    `json:"from"`
+	ToConversationId string    `json:"to"`
+	Msg              string    `json:"message"`
+	Type             string    `json:"type"`
+	Timestamp        time.Time `json:"timestamp"`
 }
 
-func (r ChatResp) FromChat(e entity.Chat) *ChatResp {
+func (r ChatResp) FromChat(e *entity.Chat) *ChatResp {
 	return &ChatResp{
 		ID:               e.ID,
 		FromUserId:       e.FromUserId,
 		ToConversationId: e.ToConversationId,
 		Msg:              e.Msg,
+		Type:             e.Type,
 		Timestamp:        e.Timestamp,
 	}
 }
@@ -97,7 +99,7 @@ func (r MessageUpdateReq) Validate() (err error) {
 func (r MessageUpdateReq) ToConversation(ctx context.Context) (res *entity.Conversation) {
 	res = &entity.Conversation{
 		ID: r.ConversationID,
-		Chat: []entity.Chat{
+		Chat: []*entity.Chat{
 			{
 				ID:  r.ChatID,
 				Msg: r.Msg,
