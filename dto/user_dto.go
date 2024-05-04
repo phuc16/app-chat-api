@@ -175,6 +175,7 @@ type UserResp struct {
 	Name           string                       `json:"name"`
 	Phone          string                       `json:"phone"`
 	AvatarUrl      string                       `json:"avatar_url"`
+	Role           string                       `json:"role"`
 	Status         string                       `json:"status"`
 	Friends        []*UserInfoResp              `json:"friends"`
 	FriendRequests []*UserInfoResp              `json:"friend_requests"`
@@ -192,6 +193,7 @@ func (r UserResp) FromUser(e *entity.User) *UserResp {
 		Name:           e.Name,
 		Phone:          e.Phone,
 		AvatarUrl:      e.AvatarUrl,
+		Role:           e.Role,
 		Status:         e.Status,
 		Friends:        fromFriendList(e.Friends),
 		FriendRequests: fromFriendRequestList(e.FriendRequests),
@@ -237,6 +239,7 @@ type UserInfoResp struct {
 	Name         string    `json:"name"`
 	Phone        string    `json:"phone"`
 	AvatarUrl    string    `json:"avatar_url"`
+	Role         string    `json:"role"`
 	Status       string    `json:"status"`
 	LastLoggedIn time.Time `json:"last_logged_in"`
 }
@@ -252,6 +255,7 @@ func (r UserInfoResp) FromUser(e *entity.User) *UserInfoResp {
 		Name:         e.Name,
 		Phone:        e.Phone,
 		AvatarUrl:    e.AvatarUrl,
+		Role:         e.Role,
 		Status:       e.Status,
 		LastLoggedIn: e.LastLoggedIn,
 	}

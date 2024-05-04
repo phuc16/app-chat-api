@@ -14,7 +14,12 @@ const userNameKey = "username"
 const (
 	UserStatusOnline  = "online"
 	UserStatusOffline = "offline"
-	UseStatusAway     = "away"
+	UserStatusAway    = "away"
+)
+
+const (
+	UserRoleAdmin = "admin"
+	UserRoleUser  = "user"
 )
 
 type User struct {
@@ -25,6 +30,7 @@ type User struct {
 	Name             string          `bson:"name"`
 	Phone            string          `bson:"phone"`
 	AvatarUrl        string          `bson:"avatar_url"`
+	Role             string          `bson:"role"`
 	Status           string          `bson:"status"`
 	FriendRequestIds []string        `bson:"friend_request_ids"`
 	FriendRequests   []*User         `bson:"friend_requests,omitempty"`
@@ -78,6 +84,7 @@ func (e *User) OnUserCreated(ctx context.Context, user *User, eventTime time.Tim
 	e.Name = user.Name
 	e.Phone = user.Phone
 	e.AvatarUrl = user.AvatarUrl
+	e.Role = UserRoleUser
 	e.Status = UserStatusOffline
 	e.FriendRequestIds = make([]string, 0)
 	e.FriendIds = make([]string, 0)

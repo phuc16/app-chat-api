@@ -1,6 +1,7 @@
 package http
 
 import (
+	"app/entity"
 	"app/errors"
 	"app/pkg/apperror"
 	"app/pkg/trace"
@@ -25,4 +26,18 @@ func (s *Server) Authenticate(ctx *gin.Context) {
 	}
 	user.SetToContext(ctx)
 	ctx.Next()
+}
+
+func (s *Server) CheckPermission(role string) func(ctx *gin.Context){
+	return func(ctx *gin.Context) {
+		context, span := trace.Tracer().Start(ctxFromGin(ctx), utils.GetCurrentFuncName())
+		defer span.End()
+	
+		if role != entity.GetUserFromContext(context).Role {
+			abortWithStatusError(ctx, 403, errors.PermissionDenied())
+			return
+		}
+	
+		ctx.Next()
+	}
 }
