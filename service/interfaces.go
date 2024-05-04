@@ -57,6 +57,6 @@ type IConversationRepo interface {
 	GetListIDUserInConversation(ctx context.Context, conversationId string) (res []string, err error)
 	AddNewChatToConversation(ctx context.Context, chat *entity.Chat) (err error)
 	AddNewConversationToUser(ctx context.Context, userID string, conversationID string) (err error)
-	GetChatByConversationId(ctx context.Context, conversationId string, params *repository.QueryParams) (res []entity.Chat, total int64, err error)
+	GetChatByConversationId(ctx context.Context, conversationId string, params *repository.QueryParams) (res []*entity.Chat, total int64, err error)
 	UpdateMessage(ctx context.Context, conversation *entity.Conversation) (err error)
 }

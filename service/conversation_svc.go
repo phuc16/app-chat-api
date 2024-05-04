@@ -81,14 +81,17 @@ func (s *ConversationService) Receiver(ctx context.Context, client *Client) erro
 
 		fmt.Println("host", client.Conn.RemoteAddr())
 
-		if m.Type == "newChat" {
+		if m.Type == "newChat" || m.Type == "newChatImage" {
+			if m.Type == "newChatImage" {
+				m.Chat.Type = "image"
+			}
 			m.Chat.ID = utils.NewID()
 			m.Chat.ToConversationId = utils.NewID()
 			newRepo := &entity.Conversation{
-				ID:       m.Chat.ToConversationId,
-				Name:     "new_chat",
-				ListUser: m.ListUserInNewChat,
-				Chat:     []entity.Chat{m.Chat},
+				ID:        m.Chat.ToConversationId,
+				Name:      "new_chat",
+				ListUser:  m.ListUserInNewChat,
+				Chat:      []*entity.Chat{&m.Chat},
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			}
@@ -109,6 +112,9 @@ func (s *ConversationService) Receiver(ctx context.Context, client *Client) erro
 			client.UserID = m.Chat.FromUserId
 		} else {
 			fmt.Println("received message", m.Type, m.Chat)
+			if m.Type == "image" {
+				m.Chat.Type = "image"
+			}
 			c := m.Chat
 			c.Timestamp = time.Now()
 
@@ -159,7 +165,7 @@ func (s *ConversationService) GetConversation(ctx context.Context, e *entity.Con
 	return s.ConversationRepo.GetConversationById(ctx, e.ID)
 }
 
-func (s *ConversationService) GetChatList(ctx context.Context, id string, query *repository.QueryParams) (res []entity.Chat, total int64, err error) {
+func (s *ConversationService) GetChatList(ctx context.Context, id string, query *repository.QueryParams) (res []*entity.Chat, total int64, err error) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 
