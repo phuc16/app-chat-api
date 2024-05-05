@@ -72,7 +72,7 @@ func (r *Repo) GetConversationById(ctx context.Context, id string) (res *entity.
 	return d[0], nil
 }
 
-func (r *Repo) GetChatByConversationId(ctx context.Context, conversationId string, params *QueryParams) (res []entity.Chat, total int64, err error) {
+func (r *Repo) GetChatByConversationId(ctx context.Context, conversationId string, params *QueryParams) (res []*entity.Chat, total int64, err error) {
 	ctx, span := trace.Tracer().Start(ctx, utils.GetCurrentFuncName())
 	defer span.End()
 	defer errors.WrapDatabaseError(&err)
@@ -158,7 +158,7 @@ func (r *Repo) UpdateMessage(ctx context.Context, conversation *entity.Conversat
 	return nil
 }
 
-func getMatchingValues(slice []entity.Chat, params *QueryParams) (res []entity.Chat, total int64) {
+func getMatchingValues(slice []*entity.Chat, params *QueryParams) (res []*entity.Chat, total int64) {
 	pattern := regexp.QuoteMeta(params.Search)
 
 	pattern = ".*" + pattern + ".*"
@@ -166,7 +166,7 @@ func getMatchingValues(slice []entity.Chat, params *QueryParams) (res []entity.C
 	regex := regexp.MustCompile(pattern)
 
 	for _, value := range slice {
-		if regex.MatchString(value.Msg.(string)) {
+		if regex.MatchString(value.Msg) {
 			res = append(res, value)
 		}
 	}
