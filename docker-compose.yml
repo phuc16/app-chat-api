@@ -3,6 +3,8 @@ version: "3.8"
 x-attributes: &default-attributes
   stdin_open: true
   tty: true
+  env_file:
+    - .env
 
 services:
   app-chat-api:
