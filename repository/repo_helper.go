@@ -24,6 +24,14 @@ func (p QueryParams) SkipLimitSortPipeline() (pipeline mongo.Pipeline) {
 	return pipeline
 }
 
+func (p QueryParams) SkipLimitChatPipeline() (pipeline mongo.Pipeline) {
+	return mongo.Pipeline{
+		{{"$sort", bson.D{{"chat.timestamp", -1}}}},
+		{{"$skip", p.Skip}},
+		{{"$limit", p.Limit}},
+	}
+}
+
 func (p QueryParams) SkipLimitPipeline() mongo.Pipeline {
 	pipeline := mongo.Pipeline{skipPipeline(p.Skip), limitPipeline(p.Limit)}
 	return pipeline
@@ -119,4 +127,36 @@ var friendRequestsLookupPipeline = bson.D{
 		{"foreignField", "id"},
 		{"as", "friend_requests"},
 	}},
+}
+
+var conversationsUnwindPipeline = bson.D{{"$unwind", bson.M{
+	"path":                       "$conversations",
+	"preserveNullAndEmptyArrays": true,
+}}}
+var conversationsLookupPipeline = bson.D{
+	{"$lookup", bson.D{
+		{"from", "conversations"},
+		{"localField", "conversation_ids"},
+		{"foreignField", "id"},
+		{"as", "conversations"},
+	}},
+}
+
+var conversationUsersUnwindPipeline = bson.D{{"$unwind", bson.M{
+	"path":                       "$users",
+	"preserveNullAndEmptyArrays": true,
+}}}
+var conversationUsersLookupPipeline = bson.D{
+	{"$lookup", bson.D{
+		{"from", "users"},
+		{"localField", "list_user"},
+		{"foreignField", "id"},
+		{"as", "users"},
+	}},
+}
+
+var matchChatMsgPipeline = func(value interface{}) bson.D {
+	return bson.D{
+		{"$match", bson.M{"chat.msg": bson.M{"$regex": value}}},
+	}
 }

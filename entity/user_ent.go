@@ -14,29 +14,36 @@ const userNameKey = "username"
 const (
 	UserStatusOnline  = "online"
 	UserStatusOffline = "offline"
-	UseStatusAway     = "away"
+	UserStatusAway    = "away"
+)
+
+const (
+	UserRoleAdmin = "admin"
+	UserRoleUser  = "user"
 )
 
 type User struct {
-	ID               string     `bson:"id"`
-	Username         string     `bson:"username"`
-	Email            string     `bson:"email"`
-	Password         string     `bson:"password"`
-	Name             string     `bson:"name"`
-	Phone            string     `bson:"phone"`
-	AvatarUrl        string     `bson:"avatar_url"`
-	Status           string     `bson:"status"`
-	FriendRequestIds []string   `bson:"friend_request_ids"`
-	FriendRequests   []*User    `bson:"friend_requests,omitempty"`
-	FriendIds        []string   `bson:"friend_ids"`
-	Friends          []*User    `bson:"friends,omitempty"`
-	ConversationIds  []string   `bson:"conversation_ids"`
-	IsActive         bool       `bson:"is_active"`
-	LastLoggedIn     time.Time  `bson:"last_logged_in"`
-	Otp              string     `bson:"-"`
-	CreatedAt        time.Time  `bson:"created_at"`
-	UpdatedAt        time.Time  `bson:"updated_at"`
-	DeletedAt        *time.Time `bson:"deleted_at,omitempty"`
+	ID               string          `bson:"id"`
+	Username         string          `bson:"username"`
+	Email            string          `bson:"email"`
+	Password         string          `bson:"password"`
+	Name             string          `bson:"name"`
+	Phone            string          `bson:"phone"`
+	AvatarUrl        string          `bson:"avatar_url"`
+	Role             string          `bson:"role"`
+	Status           string          `bson:"status"`
+	FriendRequestIds []string        `bson:"friend_request_ids"`
+	FriendRequests   []*User         `bson:"friend_requests,omitempty"`
+	FriendIds        []string        `bson:"friend_ids"`
+	Friends          []*User         `bson:"friends,omitempty"`
+	ConversationIds  []string        `bson:"conversation_ids"`
+	Conversations    []*Conversation `bson:"conversations,omitempty"`
+	IsActive         bool            `bson:"is_active"`
+	LastLoggedIn     time.Time       `bson:"last_logged_in"`
+	Otp              string          `bson:"-"`
+	CreatedAt        time.Time       `bson:"created_at"`
+	UpdatedAt        time.Time       `bson:"updated_at"`
+	DeletedAt        *time.Time      `bson:"deleted_at,omitempty"`
 }
 
 func (e User) GetUserName() string {
@@ -54,7 +61,19 @@ func (e User) GetEmail() string {
 }
 
 func (e *User) LoggedIn() bool {
+	e.FriendRequests = nil
+	e.Friends = nil
+	e.Conversations = nil
 	e.LastLoggedIn = time.Now()
+	e.Status = UserStatusOnline
+	return false
+}
+
+func (e *User) LoggedOut() bool {
+	e.FriendRequests = nil
+	e.Friends = nil
+	e.Conversations = nil
+	e.Status = UserStatusOffline
 	return false
 }
 
@@ -65,6 +84,7 @@ func (e *User) OnUserCreated(ctx context.Context, user *User, eventTime time.Tim
 	e.Name = user.Name
 	e.Phone = user.Phone
 	e.AvatarUrl = user.AvatarUrl
+	e.Role = UserRoleUser
 	e.Status = UserStatusOffline
 	e.FriendRequestIds = make([]string, 0)
 	e.FriendIds = make([]string, 0)
@@ -93,16 +113,25 @@ func (e *User) OnUserUpdated(ctx context.Context, user *User, eventTime time.Tim
 	if user.AvatarUrl != "" {
 		e.AvatarUrl = user.AvatarUrl
 	}
+	e.FriendRequests = nil
+	e.Friends = nil
+	e.Conversations = nil
 	e.UpdatedAt = eventTime
 	return nil
 }
 
 func (e *User) OnUserDeleted(ctx context.Context, user *User, eventTime time.Time) error {
+	e.FriendRequests = nil
+	e.Friends = nil
+	e.Conversations = nil
 	e.DeletedAt = &eventTime
 	return nil
 }
 
 func (e *User) OnUserActive(ctx context.Context) error {
+	e.FriendRequests = nil
+	e.Friends = nil
+	e.Conversations = nil
 	e.IsActive = true
 	return nil
 }

@@ -25,12 +25,13 @@ import (
 )
 
 type Server struct {
-	UserSvc *service.UserService
-	OtpSvc  *service.OtpService
+	UserSvc         *service.UserService
+	OtpSvc          *service.OtpService
+	ConversationSvc *service.ConversationService
 }
 
-func NewServer(userSvc *service.UserService, otpSvc *service.OtpService) *Server {
-	return &Server{UserSvc: userSvc, OtpSvc: otpSvc}
+func NewServer(userSvc *service.UserService, otpSvc *service.OtpService, conversationSvc *service.ConversationService) *Server {
+	return &Server{UserSvc: userSvc, OtpSvc: otpSvc, ConversationSvc: conversationSvc}
 }
 
 func (s *Server) Routes(router *gin.RouterGroup) {
@@ -56,8 +57,17 @@ func (s *Server) Routes(router *gin.RouterGroup) {
 	router.DELETE("/users/:id/friends/reject", s.Authenticate, s.RejectFriendRequest)
 	router.POST("/users/:id/friends/accept", s.Authenticate, s.AcceptFriendRequest)
 	router.DELETE("/users/:id/friends/remove", s.Authenticate, s.RemoveFriend)
+	router.GET("/users/friends/suggest", s.Authenticate, s.SuggestFriend)
 
+	router.GET("/ws", s.ServeWs)
 	router.POST("/otps/request", s.RequestOtp)
+
+	router.GET("/conversations/:id", s.Authenticate, s.GetConversation)
+	router.GET("/conversations/:id/chats", s.Authenticate, s.GetChatList)
+	router.PUT("/conversations/:id/chats", s.Authenticate, s.UpdateMessage)
+
+	// router.GET("/statistics", s.Authenticate, s.CheckPermission(entity.UserRoleAdmin), s.)
+
 }
 
 func (s *Server) Start() (err error) {

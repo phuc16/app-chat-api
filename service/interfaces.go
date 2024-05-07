@@ -19,6 +19,7 @@ type IUserRepo interface {
 	CheckUserNameAndEmailExist(ctx context.Context, username string, email string) (err error)
 	CheckDuplicateUserNameAndEmail(ctx context.Context, user *entity.User, username string, email string) (err error)
 	GetUserList(ctx context.Context, params *repository.QueryParams) ([]*entity.User, int64, error)
+	GetAllUsers(ctx context.Context) (res []*entity.User, err error)
 	UpdateUser(ctx context.Context, user *entity.User) error
 	DeleteUser(ctx context.Context, user *entity.User) error
 	CountUser(ctx context.Context) (total int64, err error)
@@ -47,4 +48,15 @@ type IOtpSvc interface {
 	GenerateOtp(ctx context.Context, email string) (res entity.Otp, err error)
 	VerifyOtp(ctx context.Context, e *entity.Otp) (res *entity.Otp, err error)
 	DeleteOtp(ctx context.Context, e *entity.Otp) (err error)
+}
+
+type IConversationRepo interface {
+	ExecTransaction(ctx context.Context, fn func(ctx context.Context) (any, error)) (any, error)
+	NewConversation(ctx context.Context, conservation *entity.Conversation) (err error)
+	GetConversationById(ctx context.Context, id string) (res *entity.Conversation, err error)
+	GetListIDUserInConversation(ctx context.Context, conversationId string) (res []string, err error)
+	AddNewChatToConversation(ctx context.Context, chat *entity.Chat) (err error)
+	AddNewConversationToUser(ctx context.Context, userID string, conversationID string) (err error)
+	GetChatByConversationId(ctx context.Context, conversationId string, params *repository.QueryParams) (res []*entity.Chat, total int64, err error)
+	UpdateMessage(ctx context.Context, conversation *entity.Conversation) (err error)
 }

@@ -11,6 +11,7 @@ FROM ubuntu:20.04
 
 WORKDIR /app
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait ./wait
+RUN apt-get update && apt-get install -y ca-certificates git wget nano && update-ca-certificates
 COPY ./config.yaml ./config.yaml
 COPY --from=builder /app/app ./app
 RUN chmod +x ./wait

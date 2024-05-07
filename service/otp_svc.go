@@ -33,11 +33,11 @@ func (s *OtpService) GenerateOtp(ctx context.Context, email string) (res entity.
 		Code:      fmt.Sprintf("%06d", gofakeit.Number(100000, 999999)),
 		CreatedAt: time.Now().Add(5 * time.Minute),
 	}
-	err = s.OtpRepo.SaveOtp(ctx, otp)
+	err = s.SendOtp(ctx, email, otp.Code)
 	if err != nil {
 		return
 	}
-	err = s.SendOtp(ctx, email, otp.Code)
+	err = s.OtpRepo.SaveOtp(ctx, otp)
 	return
 }
 

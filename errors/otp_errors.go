@@ -3,7 +3,7 @@ package errors
 import "app/pkg/apperror"
 
 const (
-	CodeOtpError = 20000 + iota
+	CodeOtpError = 40000 + iota
 	CodeOtpNotFound
 	CodeOtpExists
 	CodeOtpExpired
